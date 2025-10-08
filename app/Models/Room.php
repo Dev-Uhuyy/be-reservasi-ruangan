@@ -13,6 +13,7 @@ class Room extends Model
         'floor',
         'facilities',
         'status',
+        'capacity',
     ];
 
     public function schedules()

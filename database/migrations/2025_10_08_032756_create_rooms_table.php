@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('room_name', 100);
             $table->string('floor', 50);
             $table->string('facilities')->nullable();
+            $table->int('capacity');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
