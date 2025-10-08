@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('email',100)->unique();
             $table->string('password');
             $table->string('floor',50);
-            $table->enum('role',['admin','staff','student']);
             $table->string('nim_nip',20)->unique();
             $table->string('program');
             $table->rememberToken();

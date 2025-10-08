@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'floor',
+        'nim_nip',
+        'program',
     ];
 
     /**
@@ -45,4 +48,30 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'student_id');
+    }
+
+    public function bookingHistories()
+    {
+        return $this->hasMany(BookingHistory::class, 'student_id');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'user_id');
+    }
+
+    public function approvedReservations()
+    {
+        return $this->hasMany(Reservation::class, 'approved_by');
+    }
+
+    public function verifiedBookings()
+    {
+        return $this->hasMany(BookingHistory::class, 'verified_by');
+    }
+
 }
