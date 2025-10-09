@@ -17,6 +17,7 @@ class BookingHistory extends Model
         'booking_date',
         'usage_status',
         'verified_by',
+        'verified_at',
     ];
 
     public function reservation()

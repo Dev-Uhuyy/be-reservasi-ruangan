@@ -24,6 +24,7 @@ class User extends Authenticatable
         'floor',
         'nim_nip',
         'program',
+        'profile_picture',
     ];
 
     /**

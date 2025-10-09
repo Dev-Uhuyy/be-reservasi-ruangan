@@ -21,5 +21,9 @@ class Schedule extends Model
         return $this->belongsTo(Room::class, 'room_id');
     }
 
+    public function reservationDetails()
+    {
+        return $this->hasMany(ReservationDetails::class, 'schedule_id');
+    }
 
 }
