@@ -9,3 +9,20 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/auth/register', [AuthController::class, 'register']);
+
+
+Route::post('login', [AuthController::class, 'login']);
+
+// route yang hanya boleh diakses admin
+Route::get('/admin-only', [AdminController::class, 'index'])
+    ->middleware(['auth:api','role:admin']);
+
+// route yang memeriksa permission spesifik
+Route::get('/users', [UserController::class, 'index'])
+    ->middleware(['auth:api','permission:view users']);
+
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('profile', [AuthController::class, 'profile']);
+    Route::post('logout', [AuthController::class, 'logout']);
+});
