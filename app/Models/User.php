@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Spatie\Permission\Traits\HasRoles;
 
+
 class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -24,12 +25,16 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var list<string>
      */
+
+    use HasRoles;
+
     protected $fillable = [
         'name',
         'email',
         'password',
         'floor',
-        'nim_nip',
+        'nim',
+        'nip',
         'program',
         'profile_picture',
     ];

@@ -2,61 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\RegisterRequest; 
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+   public function register(RegisterRequest $request): JsonResponse
     {
-        // Validasi input
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            // 'floor' => 'required|string|max:50',
-            'nim_nip' => 'required|string|max:20|unique:users,nim_nip',
-            'program' => 'required|string'
-        ]);
+        // Validasi sudah otomatis dijalankan oleh RegisterRequest
 
+        // Buat user baru
         $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'floor'    => $request->floor ?? 'Lantai 1',
-            'nim_nip'  => $request->nim_nip,
-            'program'  => $request->program,
-            'profile_picture' => $request->profile_picture
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password), // Enkripsi password dengan bcrypt
+            'nim' => $request->nim, // Akan null jika tidak ada input
+            'nip' => $request->nip, // Akan null jika tidak ada input
+            'floor' => $request->floor, // Akan null jika tidak ada input
+            'profile_picture'=> $request->profile_picture,
+            'program' => $request->program, // Akan null jika tidak ada input
         ]);
 
-        // Assign role student secara default untuk registrasi
-        $user->assignRole('student');
+        // Assign role ke user menggunakan Spatie
+        $user->assignRole($request->role);
 
-        $token = JWTAuth::fromUser($user);
+        // Buat token (opsional, jika Anda butuh login otomatis setelah registrasi)
+        // $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'success' => true,
-            'message' => 'Registrasi berhasil',
-            'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'floor' => $user->floor,
-                    'nim_nip' => $user->nim_nip,
-                    'program' => $user->program,
-                    'profile_picture' => $user->profile_picture,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at,
-                    'roles' => $user->roles->pluck('name'),
-                    'permissions' => $user->getAllPermissions()->pluck('name')
-                ],
-                'token' => $token,
-                'token_type' => 'bearer',
-                'expires_in' => config('jwt.ttl') * 60
-            ]
+            'message' => 'Registrasi berhasil!',
+            'data' => $user,
+            // 'access_token' => $token,
+            'token_type' => 'Bearer',
         ], 201);
     }
 
