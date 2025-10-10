@@ -26,4 +26,14 @@ class Schedule extends Model
         return $this->hasMany(ReservationDetails::class, 'schedule_id');
     }
 
+    public function getJWTIdentifier()
+    {
+        return $this->getKey(); // biasanya ID user
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+    
 }

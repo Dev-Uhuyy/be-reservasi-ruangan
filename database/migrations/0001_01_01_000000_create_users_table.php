@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('profile_picture')->nullable();
             $table->string('email',100)->unique();
             $table->string('password');
-            $table->string('floor',50);
+            $table->string('floor',50)->nullable();
             $table->string('nim_nip',20)->unique();
             $table->string('program');
             $table->rememberToken();
