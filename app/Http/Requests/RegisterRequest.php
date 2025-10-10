@@ -14,30 +14,24 @@ class RegisterRequest extends FormRequest
 
     public function rules(): array
     {
+
         // Aturan dasar yang berlaku untuk semua role
         $rules = [
             'name' => 'required|string|max:100',
             'email' => 'required|string|email|max:100|unique:users',
             'password' => ['required', Password::min(8)],
-            'role' => 'required|string|in:Admin,Staff,Student',
+            // 'role' => 'required|string|in:admin,staff,student',
         ];
 
         $role = $this->input('role');
 
-        // Jika rolenya adalah "Student", tambahkan aturan ini
-        if ($role === 'Student') {
+        
+
+        // Jika rolenya adalah "student", tambahkan aturan ini
+        if ($role === 'student') {
             $rules['nim'] = 'required|string|max:20|unique:users,nim';
             $rules['program'] = 'required|string';
         }
-
-        // Jika rolenya adalah "Staff", tambahkan aturan ini
-        if ($role === 'Staff') {
-            $rules['nip'] = 'required|string|max:20|unique:users,nip';
-            $rules['floor'] = 'required|string|max:50';
-        }
-
-        // Admin tidak punya field tambahan yang wajib
-
         return $rules;
     }
 }

@@ -4,23 +4,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+
+
 
 Route::post('/auth/register', [AuthController::class, 'register']);
-
-
 Route::post('login', [AuthController::class, 'login']);
-
-// route yang hanya boleh diakses admin
-Route::get('/admin-only', [AdminController::class, 'index'])
-    ->middleware(['auth:api','role:admin']);
-
-// route yang memeriksa permission spesifik
-Route::get('/users', [UserController::class, 'index'])
-    ->middleware(['auth:api','permission:view users']);
-
 
 Route::middleware('auth:api')->group(function () {
     Route::get('profile', [AuthController::class, 'profile']);

@@ -6,17 +6,13 @@ use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
    public function register(RegisterRequest $request): JsonResponse
     {
-        // Validasi sudah otomatis dijalankan oleh RegisterRequest
-
         // Buat user baru
         $user = User::create([
             'name' => $request->name,
@@ -29,18 +25,19 @@ class AuthController extends Controller
             'program' => $request->program, // Akan null jika tidak ada input
         ]);
 
-        // Assign role ke user menggunakan Spatie
-        $user->assignRole($request->role);
+        $user->assignRole('student'); 
 
-        // Buat token (opsional, jika Anda butuh login otomatis setelah registrasi)
-        // $token = $user->createToken('auth_token')->plainTextToken;
-
+        if (!$user) {
+            return response()->json([
+                'message' => 'Registrasi gagal!'
+            ], 500);
+        }
+        
         return response()->json([
-            'message' => 'Registrasi berhasil!',
-            'data' => $user,
-            // 'access_token' => $token,
-            'token_type' => 'Bearer',
+                'message' => 'Registrasi berhasil!',
+                'data' => $user,
         ], 201);
+
     }
 
     public function login(Request $request)
@@ -72,7 +69,8 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'floor' => $user->floor,
-                    'nim_nip' => $user->nim_nip,
+                    'nim' => $user->nim,
+                    'nip' => $user->nip,
                     'program' => $user->program,
                     'profile_picture' => $user->profile_picture,
                     'created_at' => $user->created_at,
@@ -82,7 +80,7 @@ class AuthController extends Controller
                 ],
                 'token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => config('jwt.ttl') * 60 // dalam detik
+                'expires_in' => config('jwt.ttl') * 60 
             ]
         ], 200);
     }
@@ -90,7 +88,7 @@ class AuthController extends Controller
     public function profile()
     {
         $user = auth()->user();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Data profil berhasil diambil',
@@ -111,6 +109,8 @@ class AuthController extends Controller
             ]
         ], 200);
     }
+
+
 
     public function logout()
     {

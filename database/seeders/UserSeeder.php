@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
             'email' => 'admin@reservasi.com',
             'password' => Hash::make('admin123'),
             'floor' => 'Lantai 1',
-            'nim_nip' => 'ADM001',
+            'nip' => 'ADM001',
             'program' => 'Administrator',
             'profile_picture' => null,
         ]);
@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
             'email' => 'rizki.muhammad@student.university.ac.id',
             'password' => Hash::make('mahasiswa123'),
             'floor' => 'Lantai 1',
-            'nim_nip' => '2021001',
+            'nim' => '2021001',
             'program' => 'Teknik Informatika',
             'profile_picture' => null,
         ]);
@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
             'email' => 'sari.dewi@student.university.ac.id',
             'password' => Hash::make('mahasiswa123'),
             'floor' => 'Lantai 1',
-            'nim_nip' => '2021002',
+            'nim' => '2021002',
             'program' => 'Sistem Informasi',
             'profile_picture' => null,
         ]);
@@ -53,7 +53,7 @@ class UserSeeder extends Seeder
             'email' => 'ahmad.fauzi@student.university.ac.id',
             'password' => Hash::make('mahasiswa123'),
             'floor' => 'Lantai 1',
-            'nim_nip' => '2021003',
+            'nim' => '2021003',
             'program' => 'Teknik Komputer',
             'profile_picture' => null,
         ]);
@@ -65,7 +65,7 @@ class UserSeeder extends Seeder
             'email' => 'bambang.sutrisno@university.ac.id',
             'password' => Hash::make('staff123'),
             'floor' => 'Lantai 1',
-            'nim_nip' => 'STF001',
+            'nim' => 'STF001',
             'program' => 'Administrasi',
             'profile_picture' => null,
         ]);
@@ -76,7 +76,7 @@ class UserSeeder extends Seeder
             'email' => 'rina.sari@university.ac.id',
             'password' => Hash::make('staff123'),
             'floor' => 'Lantai 2',
-            'nim_nip' => 'STF002',
+            'nim' => 'STF002',
             'program' => 'Administrasi',
             'profile_picture' => null,
         ]);
@@ -88,7 +88,7 @@ class UserSeeder extends Seeder
             'email' => 'test@example.com',
             'password' => Hash::make('password'),
             'floor' => 'Lantai 1',
-            'nim_nip' => 'TEST001',
+            'nim' => 'TEST001',
             'program' => 'Test Program',
             'profile_picture' => null,
         ]);
