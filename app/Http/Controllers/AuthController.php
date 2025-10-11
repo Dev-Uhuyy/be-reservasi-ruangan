@@ -11,7 +11,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-    public function register(RegisterRequest $request): JsonResponse
+     public function register(RegisterRequest $request): JsonResponse
      {
           // Buat user baru
           $user = User::create([
@@ -184,6 +184,57 @@ class AuthController extends Controller
                      'message' => 'Tidak ada file avatar yang diunggah'
                 ]
           ], 400);
+     }
+
+     public function refreshToken()
+     {
+          $newToken = JWTAuth::refresh(JWTAuth::getToken());
+
+          return response()->json([
+                'data' => [
+                     'token' => $newToken,
+                     'token_type' => 'bearer',
+                     'expires_in' => config('jwt.ttl') * 60 
+                ],
+                'meta' => [
+                     'status_code' => 200,
+                     'success' => true,
+                     'message' => 'Token berhasil diperbarui'
+                ]
+          ], 200);
+     }
+
+     public function changePassword(Request $request)
+     {
+          $user = auth()->user();
+
+          $request->validate([
+                'current_password' => 'required|string',
+                'new_password' => 'required|string|min:6|confirmed'
+          ]);
+
+          if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                     'data' => [],
+                     'meta' => [
+                          'status_code' => 400,
+                          'success' => false,
+                          'message' => 'Password saat ini salah'
+                     ]
+                ], 400);
+          }
+
+          $user->password = Hash::make($request->new_password);
+          $user->save();
+
+          return response()->json([
+                'data' => [],
+                'meta' => [
+                     'status_code' => 200,
+                     'success' => true,
+                     'message' => 'Password berhasil diubah'
+                ]
+          ], 200);
      }
 
      public function logout()
