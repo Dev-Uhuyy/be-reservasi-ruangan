@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\RegisterRequest as AuthRegisterRequest;
+use App\Http\Requests\Auth\LoginRequest as AuthLoginRequest;
 use App\Models\User;
 use Exception;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -50,56 +53,65 @@ class AuthController extends Controller
           ], 201);
      }
 
-     public function login(Request $request)
+     public function login(AuthLoginRequest $request)
      {
-          // Validasi input
-          $request->validate([
-               'email' => 'required|email',
-               'password' => 'required|string|min:6'
-          ]);
+         try {
+             // BLOK 'TRY': Kode yang berpotensi menimbulkan error diletakkan di sini.
+             $token = $request->authenticate();
+             $user = auth()->user();
 
-          $credentials = $request->only('email', 'password');
-
-          if (! $token = JWTAuth::attempt($credentials)) {
-               return response()->json([
-                    'data' => [],
-                    'meta' => [
-                         'status_code' => 401,
-                         'success' => false,
-                         'message' => 'Email atau password salah',
-                         'error' => 'Unauthorized'
-                    ]
-               ], 401);
-          }
-
-          $user = auth()->user();
-
-          return response()->json([
-               'data' => [
-                    'user' => [
-                         'id' => $user->id,
-                         'name' => $user->name,
-                         'email' => $user->email,
-                         'floor' => $user->floor,
-                         'nim' => $user->nim,
-                         'nip' => $user->nip,
-                         'program' => $user->program,
+             // Jika semua baris di atas berhasil, kembalikan response sukses.
+             return response()->json([
+                 'data' => [
+                     'user' => [
+                         'id'              => $user->id,
+                         'name'            => $user->name,
+                         'email'           => $user->email,
+                         'floor'           => $user->floor,
+                         'nim'             => $user->nim,
+                         'nip'             => $user->nip,
+                         'program'         => $user->program,
                          'profile_picture' => $user->profile_picture,
-                         'created_at' => $user->created_at,
-                         'updated_at' => $user->updated_at,
-                         'roles' => $user->roles->pluck('name'),
-                         'permissions' => $user->getAllPermissions()->pluck('name')
-                    ],
-                    'token' => $token,
-                    'token_type' => 'bearer',
-                    'expires_in' => config('jwt.ttl') * 60
-               ],
-               'meta' => [
-                    'status_code' => 200,
-                    'success' => true,
-                    'message' => 'Login berhasil'
-               ]
-          ], 200);
+                         'created_at'      => $user->created_at,
+                         'updated_at'      => $user->updated_at,
+                         'roles'           => $user->roles->pluck('name'),
+                         'permissions'     => $user->getAllPermissions()->pluck('name')
+                     ],
+                     'token'      => $token,
+                     'token_type' => 'bearer',
+                     'expires_in' => config('jwt.ttl') * 60
+                 ],
+                 'meta' => [
+                     'status_code' => 200,
+                     'success'     => true,
+                     'message'     => 'Login berhasil'
+                 ]
+             ], 200);
+
+         } catch (ValidationException $e) {
+             // BLOK 'CATCH' 1: Khusus menangkap error validasi.
+             // Error ini terjadi jika email/password salah atau rate limit terlampaui.
+             // Kita lempar kembali agar Laravel menanganinya secara default (menjadi JSON 422).
+             throw $e;
+
+         } catch (\Exception $e) {
+             // BLOK 'CATCH' 2: Menangkap semua error tak terduga lainnya.
+             // Contoh: Masalah koneksi database, service lain mati, dll.
+
+             // Catat error ke log agar developer bisa menyelidikinya.
+             Log::error('Terjadi kesalahan saat login: ' . $e->getMessage());
+
+             // Beri response error 500 yang ramah kepada pengguna.
+             return response()->json([
+                 'data' => [],
+                 'meta' => [
+                     'status_code' => 500,
+                     'success'     => false,
+                     'message'     => 'Terjadi kesalahan pada server, silakan coba lagi nanti.',
+                     'error'       => 'Internal Server Error'
+                 ]
+             ], 500);
+         }
      }
 
      public function profile()
