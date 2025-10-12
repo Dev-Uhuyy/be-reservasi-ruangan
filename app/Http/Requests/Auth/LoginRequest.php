@@ -2,23 +2,30 @@
 
 namespace App\Http\Requests\Auth;
 
-// --- TAMBAHKAN USE STATEMENT INI ---
-use Illuminate\Auth\Events\Lockout;
+use App\Http\Requests\RateLimitable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules\Password;
 use Tymon\JWTAuth\Facades\JWTAuth;
-// ------------------------------------
 
 class LoginRequest extends FormRequest
 {
+    use RateLimitable;
+
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     */
     public function rules(): array
     {
         return [
@@ -27,6 +34,11 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [
@@ -36,6 +48,14 @@ class LoginRequest extends FormRequest
             'password.min'      => 'Password minimal harus 8 karakter.',
         ];
     }
+
+    /**
+     * Attempt to authenticate the request's credentials.
+     *
+     * @return string
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function authenticate(): string
     {
         $this->ensureIsNotRateLimited();
@@ -52,28 +72,5 @@ class LoginRequest extends FormRequest
 
         return $token;
     }
-
-    public function ensureIsNotRateLimited(): void
-    {
-        // Membatasi 5 kali percobaan per menit
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
-            return;
-        }
-
-        event(new Lockout($this));
-
-        $seconds = RateLimiter::availableIn($this->throttleKey());
-
-        throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
-        ]);
-    }
-
-    public function throttleKey(): string
-    {
-        return Str::lower($this->input('email')).'|'.$this->ip();
-    }
 }
+
