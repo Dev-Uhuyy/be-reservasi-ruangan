@@ -13,45 +13,66 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
-     public function register(AuthRegisterRequest $request): JsonResponse
-     {
-          // Buat user baru
-          $user = User::create([
-               'name' => $request->name,
-               'email' => $request->email,
-               'password' => Hash::make($request->password), // Enkripsi password dengan bcrypt
-               'nim' => $request->nim, // Akan null jika tidak ada input
-               'nip' => $request->nip, // Akan null jika tidak ada input
-               'floor' => $request->floor, // Akan null jika tidak ada input
-               'profile_picture' => $request->profile_picture,
-               'program' => $request->program, // Akan null jika tidak ada input
-          ]);
+    /**
+     * Handle user registration request.
+     *
+     * @param AuthRegisterRequest $request
+     * @return JsonResponse
+     */
+    public function register(AuthRegisterRequest $request): JsonResponse
+    {
+        // Memulai blok try-catch untuk menangani kemungkinan error
+        try {
+            // Ini memastikan semua query berhasil atau semuanya digagalkan (rollback)
+            $user = DB::transaction(function () use ($request) {
+                // Buat user baru
+                $newUser = User::create([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'nim' => $request->nim,
+                    'nip' => $request->nip,
+                    'floor' => $request->floor,
+                    'profile_picture' => $request->profile_picture,
+                    'program' => $request->program,
+                ]);
 
-          $user->assignRole('student');
+                // Berikan role 'student' kepada user baru
+                $newUser->assignRole('student');
 
-          if (!$user) {
-               return response()->json([
-                    'data' => [],
-                    'meta' => [
-                         'status_code' => 500,
-                         'success' => false,
-                         'message' => 'Registrasi gagal!'
-                    ]
-               ], 500);
-          }
+                return $newUser;
+            });
 
-          return response()->json([
-               'data' => $user,
-               'meta' => [
+            // Jika transaksi berhasil, kirim response sukses
+            return response()->json([
+                'data' => $user,
+                'meta' => [
                     'status_code' => 201,
                     'success' => true,
                     'message' => 'Registrasi berhasil!'
-               ]
-          ], 201);
-     }
+                ]
+            ], 201);
+
+        } catch (Exception $e) {
+            
+            // Catat error ke dalam log untuk debugging
+            Log::error('Registrasi gagal: ' . $e->getMessage());
+
+            // Kirim response error ke client
+            return response()->json([
+                'data' => [],
+                'meta' => [
+                    'status_code' => 500,
+                    'success' => false,
+                    'message' => 'Registrasi gagal, terjadi kesalahan pada server.' // Pesan error yang lebih umum untuk client
+                ]
+            ], 500);
+        }
+    }
 
      public function login(AuthLoginRequest $request)
      {
