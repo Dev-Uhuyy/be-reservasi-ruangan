@@ -16,4 +16,5 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::put('me', [AuthController::class, 'updateProfile']);
     Route::post('me/avatar', [AuthController::class, 'updateAvatar']);
+    Route::put('reset-password', [AuthController::class, 'changePassword']);
 });

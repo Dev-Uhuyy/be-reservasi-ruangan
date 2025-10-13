@@ -290,11 +290,11 @@ class AuthController extends Controller
                $user = auth()->user();
 
                $request->validate([
-                    'current_password' => 'required|string',
+                    'password' => 'required|string',
                     'new_password' => 'required|string|min:6|confirmed'
                ]);
 
-               if (!Hash::check($request->current_password, $user->password)) {
+               if (!Hash::check($request->password, $user->password)) {
                     return response()->json([
                          'data' => [],
                          'meta' => [
