@@ -8,12 +8,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, SoftDeletes;
 
     /**
      * The guard name for Spatie Permission
@@ -86,7 +87,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(BookingHistory::class, 'verified_by');
     }
-    
+
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
