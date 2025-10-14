@@ -18,7 +18,7 @@ class RoomCollection extends ResourceCollection
             'data' => RoomResource::collection($this->collection),
             'meta' => [
                 "success" => true,
-                "message" => "Rooms fetched successfully!",
+                "message" => "Data ruangan berhasil diambil!",
                 'pagination' => $this->paginationData()
             ]
         ];

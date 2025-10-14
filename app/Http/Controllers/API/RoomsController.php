@@ -63,7 +63,7 @@ class RoomsController extends Controller
             'meta' => [
                 'status_code' => 201,
                 'success' => true,
-                'message' => 'Room created successfully!'
+                'message' => 'Ruangan berhasil ditambahkan!'
             ]
         ], 201);
     }
@@ -79,7 +79,7 @@ class RoomsController extends Controller
             'meta' => [
                 'status_code' => 200,
                 'success' => true,
-                'message' => 'Room fetched successfully!'
+                'message' => 'Data ruangan berhasil diambil!'
             ]
         ], 200);
     }
@@ -105,7 +105,7 @@ class RoomsController extends Controller
                 'meta' => [
                     'status_code' => 422,
                     'success' => false,
-                    'message' => 'Validation failed!'
+                    'message' => 'Validasi gagal!'
                 ]
             ], 422);
         }
@@ -117,7 +117,7 @@ class RoomsController extends Controller
             'meta' => [
                 'status_code' => 200,
                 'success' => true,
-                'message' => 'Room updated successfully!'
+                'message' => 'Data ruangan berhasil diperbarui!'
             ]
         ], 200);
     }
@@ -135,7 +135,7 @@ class RoomsController extends Controller
             'meta' => [
                 'status_code' => 200,
                 'success' => true,
-                'message' => 'Room deleted successfully!'
+                'message' => 'Ruangan berhasil dihapus!'
             ]
         ], 200);
     }
