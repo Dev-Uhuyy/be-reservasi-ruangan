@@ -16,7 +16,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // buat permission (pakai guard 'api') - cek dulu apakah sudah ada
         $permissions = [
             'view users',
-            'edit users', 
+            'edit users',
             'delete users',
             'view reservations',
             'create reservations',
@@ -45,13 +45,13 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $staff = Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'api']);
         $staff->syncPermissions([
-            'view users', 'view reservations', 'create reservations', 'edit reservations', 'approve reservations',
-            'view rooms', 'create rooms', 'edit rooms'
+            'view users', 'view reservations', 'approve reservations',
+            'view rooms'
         ]);
 
         $student = Role::firstOrCreate(['name' => 'student', 'guard_name' => 'api']);
         $student->syncPermissions([
-            'view reservations', 'create reservations', 'edit reservations',
+            'view reservations', 'create reservations',
             'view rooms'
         ]);
     }

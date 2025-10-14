@@ -7,38 +7,32 @@ use App\Http\Resources\RoomResource;
 use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\RoomCollection;
 
 class RoomsController extends Controller
 {
     /**
      * Menampilkan semua data ruangan.
-     * Endpoint: GET /api/rooms
+     * Endpoint: GET /api/admin/rooms
      */
     public function index(Request $request)
     {
         $query = Room::query();
 
         if ($request->has('search')) {
-
             $query->where('room_name', 'like', '%' . $request->search . '%')
-                  ->orWhere('facilities', 'like', '%' . $request->search . '%');
+                ->orWhere('facilities', 'like', '%' . $request->search . '%');
         }
 
         $rooms = $query->latest()->paginate(10);
 
-        return response()->json([
-            'data' => RoomResource::collection($rooms),
-            'meta' => [
-                'status_code' => 200,
-                'success' => true,
-                'message' => 'Rooms fetched successfully!'
-            ]
-        ], 200);
+        // Cukup kembalikan instance dari RoomCollection yang baru
+        return new RoomCollection($rooms);
     }
 
     /**
      * Menyimpan data ruangan baru.
-     * Endpoint: POST /api/rooms/create
+     * Endpoint: POST /api/admin/rooms/create
      */
     public function store(Request $request)
     {
@@ -76,7 +70,7 @@ class RoomsController extends Controller
 
     /**
      * Menampilkan detail satu ruangan.
-     * Endpoint: GET /api/rooms/details/{room}
+     * Endpoint: GET /api/admin/rooms/details/{room}
      */
     public function show(Room $room)
     {
@@ -92,12 +86,12 @@ class RoomsController extends Controller
 
     /**
      * Memperbarui data ruangan.
-     * Endpoint: PUT /api/rooms/edits/{room}
+     * Endpoint: PUT /api/admin/rooms/edits/{room}
      */
     public function update(Request $request, Room $room)
     {
         $validator = Validator::make($request->all(), [
-        
+
             'room_name' => 'required|string|max:100|unique:rooms,room_name,' . $room->id,
             'floor' => 'required|string|max:50',
             'capacity' => 'required|integer|min:1',
@@ -130,7 +124,7 @@ class RoomsController extends Controller
 
     /**
      * Menghapus data ruangan.
-     * Endpoint: DELETE /api/rooms/delete/{room}
+     * Endpoint: DELETE /api/admin/rooms/delete/{room}
      */
     public function destroy(Room $room)
     {
@@ -146,4 +140,3 @@ class RoomsController extends Controller
         ], 200);
     }
 }
-
