@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\API\UserController;
 
 
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
@@ -19,11 +20,27 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
 });
 
 Route::middleware('auth:api')->prefix('admin')->group(function () {
+    //VIEW USER
     Route::middleware('permission:view users')->group(function () {
         Route::get('users/all', [UserController::class, 'index']);
         Route::get('users/students', [UserController::class, 'student']);
         Route::get('users/staff', [UserController::class, 'staff']);
     });
+
+    //CREATE USER
+    Route::middleware('permission:create users')->group(function () {
+        Route::post('users/student/create', [UserController::class, 'storeStudent']);
+        Route::post('users/staff/create', [UserController::class, 'storeStaff']);
+    });
+    //DELETE USER
+    Route::middleware('permission:delete users')->group(function () {
+        Route::delete('users/student/{id}', [UserController::class, 'destroy']);
+        Route::delete('users/staff/{id}', [UserController::class, 'destroy']);
+    });
+    //EDIT USER
+    Route::middleware('permission:edit users')->group(function () {
+        Route::put('users/student/edit/{id}', [UserController::class, 'updateStudent']);
+        Route::put('users/staff/edit/{id}', [UserController::class, 'updateStaff']);
 
     Route::middleware('permission:view users')->group(function () {
         Route::get('users/all', [UserController::class, 'index']);
@@ -46,5 +63,6 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
     // Izin untuk menghapus ruangan
     Route::middleware('permission:delete rooms')->group(function () {
         Route::delete('/rooms/delete/{room}', [RoomsController::class, 'destroy']);
+
     });
 });
