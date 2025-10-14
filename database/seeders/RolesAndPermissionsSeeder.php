@@ -63,7 +63,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'approve reservations',
             'view rooms',
             'create rooms',
-            'edit rooms'
+            'edit rooms',
             'view users', 'view reservations', 'approve reservations',
             'view rooms'
         ]);
