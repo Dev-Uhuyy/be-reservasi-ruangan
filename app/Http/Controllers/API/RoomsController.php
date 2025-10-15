@@ -3,60 +3,40 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\RoomResource;
+use App\Http\Requests\Admin\RoomRequest;
+use App\Http\Resources\Admin\RoomCollection;
+use App\Http\Resources\Admin\RoomResource;
 use App\Models\Room;
+use App\Services\RoomService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use App\Http\Resources\RoomCollection;
+use Illuminate\Http\JsonResponse;
+
 
 class RoomsController extends Controller
 {
+    // Inject RoomService melalui constructor agar bisa digunakan di semua method
+    public function __construct(protected RoomService $roomService)
+    {
+    }
+
     /**
      * Menampilkan semua data ruangan.
-     * Endpoint: GET /api/admin/rooms
      */
-    public function index(Request $request)
+    public function index(Request $request): RoomCollection
     {
-        $query = Room::query();
-
-        if ($request->has('search')) {
-            $query->where('room_name', 'like', '%' . $request->search . '%')
-                ->orWhere('facilities', 'like', '%' . $request->search . '%');
-        }
-
-        $rooms = $query->latest()->paginate(10);
-
-        // Cukup kembalikan instance dari RoomCollection yang baru
+        // Delegasikan tugas ke RoomService
+        $rooms = $this->roomService->getAllRooms($request);
         return new RoomCollection($rooms);
     }
 
     /**
      * Menyimpan data ruangan baru.
-     * Endpoint: POST /api/admin/rooms/create
      */
-    public function store(Request $request)
+    public function store(RoomRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-
-            'room_name' => 'required|string|max:100|unique:rooms,room_name',
-            'floor' => 'required|string|max:50',
-            'capacity' => 'required|integer|min:1',
-            'facilities' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'data' => ['errors' => $validator->errors()],
-                'meta' => [
-                    'status_code' => 422,
-                    'success' => false,
-                    'message' => 'Validation failed!'
-                ]
-            ], 422);
-        }
-
-        $room = Room::create($validator->validated());
+        // Validasi terjadi secara otomatis oleh RoomRequest.
+        // Jika gagal, controller tidak akan pernah menjalankan kode ini.
+        $room = $this->roomService->createRoom($request->validated());
 
         return response()->json([
             'data' => new RoomResource($room),
@@ -70,9 +50,8 @@ class RoomsController extends Controller
 
     /**
      * Menampilkan detail satu ruangan.
-     * Endpoint: GET /api/admin/rooms/details/{room}
      */
-    public function show(Room $room)
+    public function show(Room $room): JsonResponse
     {
         return response()->json([
             'data' => new RoomResource($room),
@@ -86,34 +65,14 @@ class RoomsController extends Controller
 
     /**
      * Memperbarui data ruangan.
-     * Endpoint: PUT /api/admin/rooms/edits/{room}
      */
-    public function update(Request $request, Room $room)
+    public function update(RoomRequest $request, Room $room): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-
-            'room_name' => 'required|string|max:100|unique:rooms,room_name,' . $room->id,
-            'floor' => 'required|string|max:50',
-            'capacity' => 'required|integer|min:1',
-            'facilities' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'data' => ['errors' => $validator->errors()],
-                'meta' => [
-                    'status_code' => 422,
-                    'success' => false,
-                    'message' => 'Validasi gagal!'
-                ]
-            ], 422);
-        }
-
-        $room->update($validator->validated());
+        // Validasi juga terjadi secara otomatis oleh RoomRequest.
+        $updatedRoom = $this->roomService->updateRoom($room, $request->validated());
 
         return response()->json([
-            'data' => new RoomResource($room),
+            'data' => new RoomResource($updatedRoom),
             'meta' => [
                 'status_code' => 200,
                 'success' => true,
@@ -124,11 +83,10 @@ class RoomsController extends Controller
 
     /**
      * Menghapus data ruangan.
-     * Endpoint: DELETE /api/admin/rooms/delete/{room}
      */
-    public function destroy(Room $room)
+    public function destroy(Room $room): JsonResponse
     {
-        $room->delete();
+        $this->roomService->deleteRoom($room);
 
         return response()->json([
             'data' => null,
@@ -140,3 +98,4 @@ class RoomsController extends Controller
         ], 200);
     }
 }
+
