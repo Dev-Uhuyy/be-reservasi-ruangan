@@ -4,8 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\RoomRequest;
-use App\Http\Resources\RoomCollection;
-use App\Http\Resources\RoomResource;
+use App\Http\Resources\Admin\RoomCollection;
+use App\Http\Resources\Admin\RoomResource;
 use App\Models\Room;
 use App\Services\RoomService;
 use Illuminate\Http\Request;
