@@ -165,6 +165,7 @@ class UserController extends Controller
     {
         // Cek otorisasi (dijelaskan di langkah 3)
         // $this->authorize('delete', $user);
+
         try {
             // Hapus data user dari database
             $user = User::findOrFail($id);
