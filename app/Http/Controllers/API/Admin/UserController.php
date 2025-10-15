@@ -83,41 +83,7 @@ class UserController extends Controller
             return $this->exceptionError($e, 'Gagal menghapus pengguna');
         }
     }
-
-    public function showStaff(User $user)
-    {
-        // if (!$user->hasRole('staff')) {
-        //     return $this->exceptionError('User bukan staff', 400);
-        // }
-
-        // return $this->successResponse(new UserResource($user), 'Detail pengguna berhasil diambil');
-
-        try {
-            // 2. Delegasikan logika ke service
-            $staff = $this->userService->showStaff($user->id);
-
-            // 3. Kembalikan response sukses jika tidak ada exception
-            return $this->successResponse(new UserResource($staff), 'Detail staff berhasil diambil');
-        } catch (ModelNotFoundException $e) {
-            return $this->exceptionError('User tidak ditemukan', 404);
-        } catch (Exception $e) {
-            // 4. Tangkap exception dari service dan format sebagai response error
-            return $this->exceptionError($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
-
-    public function showStudent(User $user)
-    {
-        try {
-            $student = $this->userService->showStudent($user->id);
-
-            return $this->successResponse(new UserResource($student), 'Detail student berhasil diambil');
-        } catch (ModelNotFoundException $e) {
-            return $this->exceptionError('User tidak ditemukan', 404);
-        } catch (Exception $e) {
-            return $this->exceptionError($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
+    
 
     public function indexStaff()
     {

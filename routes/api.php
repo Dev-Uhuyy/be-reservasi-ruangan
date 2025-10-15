@@ -32,25 +32,7 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
         ->middleware('permission:delete users');
 
 
-    Route::get('staff/{user}', [UserController::class, 'showStaff'])
-        ->middleware('permission:view users');
-    Route::get('students/{user}', [UserController::class, 'showStudent'])
-        ->middleware('permission:view users');
-    Route::get('staff', [UserController::class, 'indexStaff'])
-        ->name('staff.index')
-        ->middleware('permission:view users');
-    // Endpoint: GET /api/admin/students
-    Route::get('students', [UserController::class, 'indexStudent'])
-        ->name('students.index')
-        ->middleware('permission:view users');
-
-
-
-
-    Route::get('staff/{user}', [UserController::class, 'showStaff'])
-        ->middleware('permission:view users');
-    Route::get('students/{user}', [UserController::class, 'showStudent'])
-        ->middleware('permission:view users');
+    
     Route::get('staff', [UserController::class, 'indexStaff'])
         ->name('staff.index')
         ->middleware('permission:view users');
