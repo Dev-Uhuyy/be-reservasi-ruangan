@@ -18,9 +18,6 @@ class RegisterRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Panggil metode untuk memastikan request tidak dibatasi oleh rate limiter.
-        // Metode ini akan melempar exception jika batas terlampaui,
-        // yang akan secara otomatis diubah menjadi response JSON 429 oleh Laravel.
         $this->ensureIsNotRateLimited();
 
         return true;
@@ -33,22 +30,13 @@ class RegisterRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Aturan dasar yang berlaku untuk semua role
-        $rules = [
-            'name' => 'required|string|max:100',
-            'email' => 'required|string|email|max:100|unique:users',
+        return [
+            'name'     => 'required|string|max:100',
+            'email'    => 'required|string|email|max:100|unique:users,email',
             'password' => ['required', Password::min(8)],
+            'nim'      => 'required|string|max:20|unique:users,nim',
+            'program'  => 'required|string',
         ];
-
-        $role = $this->input('role');
-
-        // Jika rolenya adalah "student", tambahkan aturan ini
-        if ($role === 'student') {
-            $rules['nim'] = 'required|string|max:20|unique:users,nim';
-            $rules['program'] = 'required|string';
-        }
-
-        return $rules;
     }
 
     /**
