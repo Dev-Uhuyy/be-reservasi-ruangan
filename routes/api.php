@@ -22,15 +22,6 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
 Route::middleware('auth:api')->prefix('admin')->group(function () {
     Route::get('users', [UserController::class, 'index'])
         ->middleware('permission:view users');
-    
-    // Show user hanya jika staff
-    Route::get('users/staff/', [UserController::class, 'showStaff'])
-        ->middleware('permission:view users'); // not working
-
-    // Show user hanya jika student
-    Route::get('users/student/{user}', [UserController::class, 'showStudent'])
-        ->middleware('permission:view users'); // not working
-
     Route::get('users/{user}', [UserController::class, 'show'])
         ->middleware('permission:view users');
     Route::post('users', [UserController::class, 'store'])
@@ -39,6 +30,21 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
         ->middleware('permission:edit users');
     Route::delete('users/{user}', [UserController::class, 'destroy'])
         ->middleware('permission:delete users');
+
+
+
+
+    Route::get('staff/{user}', [UserController::class, 'showStaff'])
+        ->middleware('permission:view users');
+    Route::get('students/{user}', [UserController::class, 'showStudent'])
+        ->middleware('permission:view users');
+    Route::get('staff', [UserController::class, 'indexStaff'])
+        ->name('staff.index')
+        ->middleware('permission:view users');
+    // Endpoint: GET /api/admin/students
+    Route::get('students', [UserController::class, 'indexStudent'])
+        ->name('students.index')
+        ->middleware('permission:view users');
 
 
 
