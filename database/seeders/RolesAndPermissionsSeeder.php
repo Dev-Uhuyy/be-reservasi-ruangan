@@ -27,7 +27,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'view rooms',
             'create rooms',
             'edit rooms',
-            'delete rooms'
+            'delete rooms',
+            'view schedules',
+            'create schedules',
+            'edit schedules',
+            'delete schedules'
         ];
 
         foreach ($permissions as $permission) {
@@ -51,7 +55,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'view rooms',
             'create rooms',
             'edit rooms',
-            'delete rooms'
+            'delete rooms',
+            'view schedules',
+            'create schedules',
+            'edit schedules',
+            'delete schedules'
         ]);
 
         $staff = Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'api']);
