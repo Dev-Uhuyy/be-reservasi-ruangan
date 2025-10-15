@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * Berisi semua logika bisnis untuk manajemen pengguna oleh Admin.
@@ -82,5 +84,45 @@ class UserManagementService
     public function deleteUser(User $user): void
     {
         $user->delete();
+    }
+
+    public function getAllStaff(): LengthAwarePaginator
+    {
+        // Menggunakan scope 'role' dari Spatie/laravel-permission
+        // untuk memfilter user berdasarkan peran dan melakukan paginasi.
+        return User::role('staff')->paginate(3);
+    }
+
+    public function getAllStudents(): LengthAwarePaginator
+    {
+        return User::role('student')->paginate(2);
+    }
+
+    public function showStaff(int $userId)
+    {
+        // Temukan user atau gagal (akan melempar ModelNotFoundException)
+        $user = User::findOrFail($userId);
+
+        // Logika bisnis inti: periksa peran
+        if (!$user->hasRole('staff')) {
+            // Lemparkan exception jika kondisi tidak terpenuhi
+            throw new Exception('User yang dipilih bukan staff.', 403); // 403 Forbidden lebih cocok
+        }
+
+        // Kembalikan data jika valid
+        return $user;
+    }
+
+    public function showStudent(int $userId)
+    {
+        $user = User::findOrFail($userId);
+
+        // Logika bisnis inti: periksa peran
+        if (!$user->hasRole('student')) {
+            // Lemparkan exception jika kondisi tidak terpenuhi
+            throw new Exception('User yang dipilih bukan student.', 403);
+        }
+
+        return $user;
     }
 }
