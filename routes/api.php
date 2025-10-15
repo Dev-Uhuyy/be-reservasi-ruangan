@@ -5,8 +5,7 @@ use App\Http\Controllers\API\RoomsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Admin\UserController;
-
-
+use App\Http\Controllers\API\ScheduleController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -22,6 +21,7 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
 Route::middleware('auth:api')->prefix('admin')->group(function () {
     Route::get('users', [UserController::class, 'index'])
         ->middleware('permission:view users');
+  
     Route::get('users/{user}', [UserController::class, 'show'])
         ->middleware('permission:view users');
     Route::post('users', [UserController::class, 'store'])
@@ -30,6 +30,19 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
         ->middleware('permission:edit users');
     Route::delete('users/{user}', [UserController::class, 'destroy'])
         ->middleware('permission:delete users');
+
+
+    Route::get('staff/{user}', [UserController::class, 'showStaff'])
+        ->middleware('permission:view users');
+    Route::get('students/{user}', [UserController::class, 'showStudent'])
+        ->middleware('permission:view users');
+    Route::get('staff', [UserController::class, 'indexStaff'])
+        ->name('staff.index')
+        ->middleware('permission:view users');
+    // Endpoint: GET /api/admin/students
+    Route::get('students', [UserController::class, 'indexStudent'])
+        ->name('students.index')
+        ->middleware('permission:view users');
 
 
 
@@ -64,5 +77,24 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
     // Izin untuk menghapus ruangan
     Route::middleware('permission:delete rooms')->group(function () {
         Route::delete('/rooms/delete/{room}', [RoomsController::class, 'destroy']);
+    });
+
+    //Route Schedule
+    // izin untuk melihat jadwal
+    Route::middleware('permission:view schedules')->group(function () {
+        Route::get('/', [ScheduleController::class, 'index']);
+        Route::get('/schedule/details/{schedule}', [ScheduleController::class, 'show']);
+    });
+    // Izin untuk membuat jadwal
+    Route::middleware('permission:create schedules')->group(function () {
+        Route::post('schedule/create', [ScheduleController::class, 'store']);
+    });
+    // Izin untuk mengedit jadwal
+    Route::middleware('permission:edit schedules')->group(function () {
+        Route::put('schedule/edits/{schedule}', [ScheduleController::class, 'update']);
+    });
+    // Izin untuk menghapus jadwal
+    Route::middleware('permission:delete schedules')->group(function () {
+        Route::delete('schedule/delete/{schedule}', [ScheduleController::class, 'destroy']);
     });
 });
