@@ -13,7 +13,7 @@ class Reservation extends Model
         'room_id',
         'schedule_id',
         'request_date',
-        'reject_reason',
+        'rejection_reason',
         'approval_letter',
         'approved_by',
         'status',
@@ -44,6 +44,4 @@ class Reservation extends Model
     {
         return $this->belongsTo(BookingHistory::class, 'reservation_id');
     }
-
-
 }
