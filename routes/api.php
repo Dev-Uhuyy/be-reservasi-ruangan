@@ -32,6 +32,7 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
         ->middleware('permission:view users'); // not working
 
 
+
     Route::get('users/{user}', [UserController::class, 'show'])
         ->middleware('permission:view users');
     Route::post('users', [UserController::class, 'store'])
@@ -42,6 +43,11 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
         ->middleware('permission:delete users');
 
 
+
+    Route::get('staff/{user}', [UserController::class, 'showStaff'])
+        ->middleware('permission:view users');
+    Route::get('students/{user}', [UserController::class, 'showStudent'])
+        ->middleware('permission:view users');
 
     Route::get('staff', [UserController::class, 'indexStaff'])
         ->name('staff.index')
