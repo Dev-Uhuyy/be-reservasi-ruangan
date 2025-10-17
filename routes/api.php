@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Admin\UserController;
 use App\Http\Controllers\API\ScheduleController;
+use App\Http\Controllers\API\Staff\VerificationController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -23,6 +24,15 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
     Route::get('users', [UserController::class, 'index'])
         ->middleware('permission:view users');
 
+    // Show user hanya jika staff
+    Route::get('users/staff/', [UserController::class, 'showStaff'])
+        ->middleware('permission:view users'); // not working
+
+    // Show user hanya jika student
+    Route::get('users/student/{user}', [UserController::class, 'showStudent'])
+        ->middleware('permission:view users'); // not working
+
+
     Route::get('users/{user}', [UserController::class, 'show'])
         ->middleware('permission:view users');
     Route::post('users', [UserController::class, 'store'])
@@ -33,6 +43,11 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
         ->middleware('permission:delete users');
 
 
+
+    Route::get('staff/{user}', [UserController::class, 'showStaff'])
+        ->middleware('permission:view users');
+    Route::get('students/{user}', [UserController::class, 'showStudent'])
+        ->middleware('permission:view users');
 
     Route::get('staff', [UserController::class, 'indexStaff'])
         ->name('staff.index')
@@ -63,10 +78,10 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
     });
 
     //Route Schedule
-    
+
     // izin untuk melihat jadwal
     Route::middleware('permission:view schedules')->group(function () {
-        Route::get('/', [ScheduleController::class, 'index']);
+        Route::get('/schedule', [ScheduleController::class, 'index']);
         Route::get('/schedule/details/{schedule}', [ScheduleController::class, 'show']);
     });
     // Izin untuk membuat jadwal
@@ -89,3 +104,21 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
         Route::put('/reservations/{id}/reject', [ApprovalController::class, 'reject']);
     });
 });
+
+
+Route::middleware(['auth:api', 'permission:verify reservations'])->prefix('staff')->group(function () {
+    Route::get('/verifications', [VerificationController::class, 'index']);
+    Route::get('/verifications/{bookingHistory}', [VerificationController::class, 'show']);
+    Route::put('/verifications/{bookingHistory}', [VerificationController::class, 'update']);
+
+     Route::middleware('permission:view rooms')->group(function () {
+        Route::get('/rooms', [RoomsController::class, 'index']);
+        Route::get('/rooms/details/{room}', [RoomsController::class, 'show']);
+    });
+
+
+    // Mengupdate status penggunaan (melakukan verifikasi)
+    // PATCH /api/staff/verifications/{bookingHistory}
+
+});
+

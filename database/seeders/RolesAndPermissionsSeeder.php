@@ -23,7 +23,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'create reservations',
             'edit reservations',
             'delete reservations',
-            'approve reservations',
+            'verify reservations',
             'view rooms',
             'create rooms',
             'edit rooms',
@@ -51,7 +51,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'create reservations',
             'edit reservations',
             'delete reservations',
-            'approve reservations',
             'view rooms',
             'create rooms',
             'edit rooms',
@@ -64,17 +63,8 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $staff = Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'api']);
         $staff->syncPermissions([
-            'view users',
             'view reservations',
-            'create reservations',
-            'edit reservations',
-            'approve reservations',
-            'view rooms',
-            'create rooms',
-            'edit rooms',
-            'view users',
-            'view reservations',
-            'approve reservations',
+            'verify reservations',
             'view rooms'
         ]);
 
