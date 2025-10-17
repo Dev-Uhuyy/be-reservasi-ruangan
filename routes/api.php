@@ -62,6 +62,7 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
     });
 
     //Route Schedule
+    
     // izin untuk melihat jadwal
     Route::middleware('permission:view schedules')->group(function () {
         Route::get('/', [ScheduleController::class, 'index']);

@@ -42,7 +42,7 @@ class AuthController extends Controller
         $token = $this->authService->login($request->validated());
 
         if (!$token) {
-            return $this->exceptionError(new \Exception('Unauthorized'), 'Kredensial tidak valid', 401);
+            return $this->exceptionError(new \Exception('Kredensial tidak valid'), 'Kredensial tidak valid', 401);
         }
 
         $user = auth()->user();
