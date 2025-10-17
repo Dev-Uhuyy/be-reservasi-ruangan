@@ -10,6 +10,8 @@ use App\Http\Resources\Admin\UserResource;
 use App\Models\User;
 use App\Services\UserManagementService;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Exception;
 
 class UserController extends Controller
 {
@@ -81,22 +83,38 @@ class UserController extends Controller
             return $this->exceptionError($e, 'Gagal menghapus pengguna');
         }
     }
+    
 
-    public function showStaff(User $user)
+    public function indexStaff()
     {
-        if (!$user->hasRole('staff')) {
-            return $this->exceptionError('User bukan staff', 400);
-        }
+        try {
+            // Panggil service untuk mendapatkan daftar staff yang sudah dipaginasi
+            $staff = $this->userService->getAllStaff();
 
-        return $this->successResponse(new UserResource($user), 'Detail pengguna berhasil diambil');
+            // Gunakan UserResource::collection untuk mengubah koleksi data
+            return $this->successResponse(
+                UserResource::collection($staff),
+                'Daftar staff berhasil diambil'
+            );
+        } catch (Exception $e) {
+            return $this->exceptionError('Gagal mengambil data staff: ' . $e->getMessage(), 500);
+        }
     }
 
-    public function showStudent(User $user){
-        if($user->hasRole('student')){
-            return $this->exceptionError('User bukan student', 400);
+    /**
+     * Menampilkan daftar semua student.
+     */
+    public function indexStudent()
+    {
+        try {
+            $students = $this->userService->getAllStudents();
+
+            return $this->successResponse(
+                UserResource::collection($students),
+                'Daftar student berhasil diambil'
+            );
+        } catch (Exception $e) {
+            return $this->exceptionError('Gagal mengambil data student: ' . $e->getMessage(), 500);
         }
-
-        return $this->successResponse(new UserResource($user), 'Detail pengguna berhasil diambil');
     }
-
 }

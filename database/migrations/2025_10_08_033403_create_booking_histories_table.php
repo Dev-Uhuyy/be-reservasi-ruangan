@@ -19,8 +19,8 @@ return new class extends Migration
             $table->time('start_time');
             $table->time('end_time');
             $table->date('booking_date');
-            $table->enum('usage_status', ['used', 'unused'])->default('unused');
-            $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();  
+            $table->enum('usage_status', ['used', 'unused', 'need_verification'])->default('unused');
+            $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();
             $table->dateTime('verified_at')->nullable();
             $table->timestamps();
         });

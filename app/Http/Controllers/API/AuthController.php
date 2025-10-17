@@ -42,13 +42,13 @@ class AuthController extends Controller
         $token = $this->authService->login($request->validated());
 
         if (!$token) {
-            return $this->exceptionError(new \Exception('Unauthorized'), 'Kredensial tidak valid', 401);
+            return $this->exceptionError(new \Exception('Kredensial tidak valid'), 'Kredensial tidak valid', 401);
         }
-        
+
         $user = auth()->user();
 
         $data = [
-            'user'       => new UserResource($user), 
+            'user'       => new UserResource($user),
             'token'      => $token,
             'token_type' => 'bearer',
             'expires_in' => config('jwt.ttl') * 60
@@ -64,7 +64,7 @@ class AuthController extends Controller
     {
         return $this->successResponse(new UserResource(auth()->user()), 'Data profil berhasil diambil.');
     }
-    
+
     /**
      * Endpoint untuk memperbarui data profil teks.
      */
@@ -77,7 +77,7 @@ class AuthController extends Controller
             return $this->exceptionError($e, 'Gagal memperbarui profil', 500);
         }
     }
-    
+
     /**
      * Endpoint untuk memperbarui foto profil (avatar).
      */
@@ -128,4 +128,3 @@ class AuthController extends Controller
         return $this->successResponse($data, 'Token berhasil diperbarui.');
     }
 }
-
