@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\ApprovalController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\RoomsController;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ Route::middleware('auth:api')->prefix('auth')->group(function () {
 Route::middleware('auth:api')->prefix('admin')->group(function () {
     Route::get('users', [UserController::class, 'index'])
         ->middleware('permission:view users');
-  
+
     Route::get('users/{user}', [UserController::class, 'show'])
         ->middleware('permission:view users');
     Route::post('users', [UserController::class, 'store'])
@@ -32,7 +33,7 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
         ->middleware('permission:delete users');
 
 
-    
+
     Route::get('staff', [UserController::class, 'indexStaff'])
         ->name('staff.index')
         ->middleware('permission:view users');
@@ -79,5 +80,12 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
     // Izin untuk menghapus jadwal
     Route::middleware('permission:delete schedules')->group(function () {
         Route::delete('schedule/delete/{schedule}', [ScheduleController::class, 'destroy']);
+    });
+
+    //Route Lihat Reservasi
+    Route::middleware('permission:view reservations')->group(function () {
+        Route::get('/reservations', [ApprovalController::class, 'index']);
+        Route::put('/reservations/{id}/approve', [ApprovalController::class, 'approve']);
+        Route::put('/reservations/{id}/reject', [ApprovalController::class, 'reject']);
     });
 });
