@@ -35,9 +35,44 @@ class VerificationService
         $bookingHistory->update([
             'usage_status' => $usageStatus,
             'verified_by' => Auth::id(), // ID staff yang sedang login
-            'verified_at' => now(),      // Waktu saat ini
+            'verified_at' => now(),     
         ]);
 
         return $bookingHistory;
+    }
+
+    /**
+     * Mengambil riwayat verifikasi untuk staff yang sedang login.
+     */
+    public function getVerificationHistoryForStaff(Request $request): LengthAwarePaginator
+    {
+        $query = BookingHistory::with(['room', 'student'])
+            // Wajib: Hanya tampilkan riwayat milik staff yang login
+            ->where('verified_by', Auth::id())
+            // Wajib: Hanya tampilkan status final
+            ->whereIn('usage_status', ['used', 'unused']);
+
+        // Filter opsional berdasarkan status
+        if ($request->filled('status')) {
+            $query->where('usage_status', $request->status);
+        }
+
+        // Filter opsional berdasarkan rentang tanggal verifikasi
+        if ($request->filled('start_date')) {
+            $query->whereDate('verified_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('verified_at', '<=', $request->end_date);
+        }
+
+        // Filter opsional berdasarkan nama ruangan
+        if ($request->filled('search')) {
+            $query->whereHas('room', function ($q) use ($request) {
+                $q->where('room_name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Urutkan berdasarkan yang paling baru diverifikasi
+        return $query->orderBy('verified_at', 'desc')->paginate(15);
     }
 }
