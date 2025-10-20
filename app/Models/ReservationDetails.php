@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-
-class ReservationDetails extends Model
+class ReservationDetail extends Model
 {
+    use HasFactory;
+
     protected $table = 'reservation_details';
 
     protected $fillable = [
@@ -15,17 +17,25 @@ class ReservationDetails extends Model
         'schedule_id',
     ];
     
+    /**
+     * Relasi ke 'induk' atau 'tiket utama' reservasi.
+     */
     public function reservation()
     {
-        return $this->belongsTo(Reservation::class, 'reservation_id');
+        return $this->belongsTo(Reservation::class);
     }
 
+    /**
+     * Relasi ke ruangan yang dipesan.
+     */
     public function room(){
-        return $this->belongsTo(Room::class, 'room_id');
+        return $this->belongsTo(Room::class);
     }
 
+    /**
+     * Relasi ke jadwal yang dipesan.
+     */
     public function schedule(){
-        return $this->belongsTo(Schedule::class, 'schedule_id');
+        return $this->belongsTo(Schedule::class);
     }
-    
 }

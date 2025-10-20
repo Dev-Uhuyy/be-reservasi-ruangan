@@ -66,8 +66,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $staff->syncPermissions([
             'view reservations',
             'verify reservations',
-            'view rooms',
-            'view verification history'
+            'view verification history',
+            'view rooms'
         ]);
 
         $student = Role::firstOrCreate(['name' => 'student', 'guard_name' => 'api']);
