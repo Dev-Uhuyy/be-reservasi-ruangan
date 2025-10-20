@@ -97,4 +97,32 @@ class UserManagementService
     {
         return User::role('student')->paginate(2);
     }
+
+    // public function showStaff(int $userId)
+    // {
+    //     // Temukan user atau gagal (akan melempar ModelNotFoundException)
+    //     $user = User::findOrFail($userId);
+
+    //     // Logika bisnis inti: periksa peran
+    //     if (!$user->hasRole('staff')) {
+    //         // Lemparkan exception jika kondisi tidak terpenuhi
+    //         throw new Exception('User yang dipilih bukan staff.', 403); // 403 Forbidden lebih cocok
+    //     }
+
+    //     // Kembalikan data jika valid
+    //     return $user;
+    // }
+
+    // public function showStudent(int $userId)
+    // {
+    //     $user = User::findOrFail($userId);
+
+    //     // Logika bisnis inti: periksa peran
+    //     if (!$user->hasRole('student')) {
+    //         // Lemparkan exception jika kondisi tidak terpenuhi
+    //         throw new Exception('User yang dipilih bukan student.', 403);
+    //     }
+
+    //     return $user;
+    // }
 }
