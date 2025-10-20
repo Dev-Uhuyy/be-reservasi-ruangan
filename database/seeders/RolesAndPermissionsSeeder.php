@@ -67,7 +67,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view reservations',
             'verify reservations',
             'view rooms',
-            'view verification history'
+            'view verification history',
             'view rooms'
         ]);
 

@@ -11,10 +11,16 @@ class Reservation extends Model
 
     protected $table = 'reservations';
 
+    /**
+     * DIUBAH: Disesuaikan dengan Service dan Migrasi
+     * 1. 'purpose' ditambahkan (dari Migrasi & Service)
+     * 2. 'request_date' ditambahkan (dari Migrasi)
+     * 3. 'room_id' dan 'schedule_id' DIHAPUS (karena tidak ada di Migrasi)
+     */
     protected $fillable = [
         'student_id',
-        'purpose', 
-        'request_date',
+        'purpose',          // <-- DITAMBAHKAN
+        'request_date',     // <-- DITAMBAHKAN
         'rejection_reason',
         'approval_letter',
         'approved_by',
@@ -29,9 +35,7 @@ class Reservation extends Model
         return $this->belongsTo(User::class, 'student_id');
     }
 
-    /**
-     * Relasi ke admin yang menyetujui.
-     */
+
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
@@ -53,5 +57,11 @@ class Reservation extends Model
     public function bookingHistory()
     {
         return $this->hasOne(BookingHistory::class);
+    }
+    
+    public function reservationDetails()
+    {
+        // Saya asumsikan ini relasi yang benar
+        return $this->hasMany(ReservationDetail::class, 'reservation_id');
     }
 }
