@@ -8,16 +8,20 @@ class Reservation extends Model
 {
     protected $table = 'reservations';
 
+    /**
+     * DIUBAH: Disesuaikan dengan Service dan Migrasi
+     * 1. 'purpose' ditambahkan (dari Migrasi & Service)
+     * 2. 'request_date' ditambahkan (dari Migrasi)
+     * 3. 'room_id' dan 'schedule_id' DIHAPUS (karena tidak ada di Migrasi)
+     */
     protected $fillable = [
         'student_id',
-        'room_id',
-        'schedule_id',
-        'request_date',
+        'purpose',          // <-- DITAMBAHKAN
+        'request_date',     // <-- DITAMBAHKAN
         'rejection_reason',
         'approval_letter',
         'approved_by',
         'status',
-
     ];
 
     public function student()
@@ -25,23 +29,22 @@ class Reservation extends Model
         return $this->belongsTo(User::class, 'student_id');
     }
 
-    public function room()
-    {
-        return $this->belongsTo(Room::class, 'room_id');
-    }
-
-    public function schedule()
-    {
-        return $this->belongsTo(Schedule::class, 'schedule_id');
-    }
+    // ... (relasi room() dan schedule() Anda sebenarnya tidak terpakai di sini) ...
 
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function bookingHistories()
+    /**
+     * DIUBAH: Nama relasi diubah dari bookingHistories() menjadi reservationDetails()
+     * agar sesuai dengan panggilan di ReservationService.
+     *
+     * Pastikan Anda punya model ReservationDetails.
+     */
+    public function reservationDetails()
     {
-        return $this->belongsTo(BookingHistory::class, 'reservation_id');
+        // Saya asumsikan ini relasi yang benar
+        return $this->hasMany(ReservationDetails::class, 'reservation_id');
     }
 }
