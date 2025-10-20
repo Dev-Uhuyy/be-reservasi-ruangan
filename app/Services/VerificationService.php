@@ -35,7 +35,7 @@ class VerificationService
         $bookingHistory->update([
             'usage_status' => $usageStatus,
             'verified_by' => Auth::id(), // ID staff yang sedang login
-            'verified_at' => now(),     
+            'verified_at' => now(),   
         ]);
 
         return $bookingHistory;

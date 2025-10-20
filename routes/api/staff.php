@@ -19,4 +19,5 @@ Route::middleware(['auth:api', 'permission:verify reservations'])->prefix('staff
     Route::middleware('permission:view verification history')->group(function () {
         Route::get('/history', [HistoryController::class, 'index']);
     });
+
 });
