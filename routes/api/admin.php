@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Admin\UserController;
 use App\Http\Controllers\API\RoomsController;
@@ -7,6 +8,10 @@ use App\Http\Controllers\API\ScheduleController;
 use App\Http\Controllers\API\ApprovalController;
 
 Route::middleware('auth:api')->prefix('admin')->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+
     // User management
     Route::get('users', [UserController::class, 'index'])->middleware('permission:view users');
     Route::get('users/staff/', [UserController::class, 'showStaff'])->middleware('permission:view users');

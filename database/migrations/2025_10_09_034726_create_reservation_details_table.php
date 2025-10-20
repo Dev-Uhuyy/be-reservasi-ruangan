@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('reservation_details', function (Blueprint $table) {
             $table->id();
-            $table->string('reservation_id');
-            $table->string('room_id');
-            $table->string('schedule_id');
+            $table->foreignId('reservation_id')->constrained('reservations')->cascadeOnDelete(); // sebelum e string ak ganti 
+            $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete();
+            $table->foreignId('schedule_id')->constrained('schedules')->cascadeOnDelete();
             $table->timestamps();
         });
     }
