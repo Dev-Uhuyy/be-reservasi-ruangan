@@ -20,10 +20,13 @@ abstract class Controller
     public function exceptionError($e, $exception, $status = 400, $meta = [])
     {
         return response()->json([
-            'success' => false,
-            'message' => $e->getMessage(),
-            'errors' => 'Exception Error : ' . $exception,
-            'meta' => $meta,
+            'data' => null,
+            'meta' => [
+                'status_code' => $status,
+                'success' => false,
+                'message' => is_object($e) ? $e->getMessage() : $exception,
+                'errors' => 'Exception Error : ' . $exception,
+            ]
         ], $status);
     }
 
