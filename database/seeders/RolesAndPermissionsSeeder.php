@@ -31,7 +31,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'view schedules',
             'create schedules',
             'edit schedules',
-            'delete schedules'
+            'delete schedules',
+            'view verification history'
         ];
 
         foreach ($permissions as $permission) {
@@ -65,6 +66,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $staff->syncPermissions([
             'view reservations',
             'verify reservations',
+            'view rooms',
+            'view verification history'
             'view rooms'
         ]);
 
