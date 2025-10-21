@@ -25,7 +25,7 @@ class ReservationApprovedMail extends Mailable
      */
     public function __construct(Reservation $reservation)
     {
-        $this->reservation = $reservation;    
+        $this->reservation = $reservation;
         $this->downloadUrl = Storage::disk('public')->url($reservation->approval_letter);
     }
 
@@ -45,7 +45,7 @@ class ReservationApprovedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.reservation-approved',
+            view: 'email.reservation-approved',
             with: [
                 'reservation' => $this->reservation
             ],
@@ -59,11 +59,9 @@ class ReservationApprovedMail extends Mailable
      */
     public function attachments(): array
     {
-        // generate pdf
-        $pdf = Pdf::loadView('pdfs.approval-letter', ['reservation' => $this->reservation]);
-
         return [
-            Attachment::fromData(fn () => $pdf->output(), 'Surat-Persetujuan-Reservasi.pdf')
+            Attachment::fromPath(Storage::disk('public')->path($this->reservation->approval_letter))
+                ->as('Surat_Persetujuan.pdf')
                 ->withMime('application/pdf'),
         ];
     }

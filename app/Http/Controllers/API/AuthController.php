@@ -94,14 +94,28 @@ class AuthController extends Controller
     /**
      * Endpoint untuk mengubah password.
      */
+
     public function changePassword(ChangePasswordRequest $request): JsonResponse
     {
         try {
+            // Panggil service untuk mengubah password
             $this->authService->changePassword(auth()->user(), $request->validated());
+
+            // Jika berhasil, kembalikan respons sukses
             return $this->successResponse(null, 'Password berhasil diubah.');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return $this->exceptionError($e, $e->getMessage(), 422);
+            // Tangani ValidationException secara eksplisit
+            return response()->json([
+                'data' => null,
+                'meta' => [
+                    'status_code' => 422,
+                    'success' => false,
+                    'message' => 'Password saat ini salah.',
+                    'errors' => $e->errors()
+                ]
+            ], 422);
         } catch (\Throwable $e) {
+            // Tangani error lain dengan exceptionError
             return $this->exceptionError($e, 'Gagal mengubah password', 500);
         }
     }
