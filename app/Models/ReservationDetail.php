@@ -16,7 +16,7 @@ class ReservationDetail extends Model
         'room_id',
         'schedule_id',
     ];
-    
+
     /**
      * Relasi ke 'induk' atau 'tiket utama' reservasi.
      */
@@ -28,14 +28,16 @@ class ReservationDetail extends Model
     /**
      * Relasi ke ruangan yang dipesan.
      */
-    public function room(){
+    public function room()
+    {
         return $this->belongsTo(Room::class, 'room_id');
     }
 
     /**
      * Relasi ke jadwal yang dipesan.
      */
-    public function schedule(){
+    public function schedule()
+    {
         return $this->belongsTo(Schedule::class, 'schedule_id');
     }
 }

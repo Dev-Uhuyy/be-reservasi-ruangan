@@ -2,187 +2,108 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Events\ReservationApproved;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ReservationResource;
 use App\Models\Reservation;
-use App\Services\ApprovalService;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Exception;
+use App\Services\ApprovalService; // Import Service
+use App\Http\Resources\ReservationResource; // Import Resource
+use App\Http\Requests\ApproveReservationRequest; // Import Form Request
+use App\Http\Requests\RejectReservationRequest; // Import Form Request
+use App\Exceptions\ReservationAlreadyProcessedException; // Import Exception Kustom
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class ApprovalController extends Controller
 {
-    protected $approvalService;
-
-    public function __construct(ApprovalService $approvalService)
-    {
-        $this->approvalService = $approvalService;
-    }
-
+    /**
+     * Inject ApprovalService via constructor.
+     */
+    public function __construct(protected ApprovalService $approvalService) {}
 
     /**
-     * Display a listing of reservations for approval.
-     * Accessible via permission 'view reservations' (admin only via route middleware).
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * Display a listing of reservations.
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        try {
-            $user = Auth::user();
-            if (!$user->hasRole('admin')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Forbidden. Only admin role allowed.',
-                ], 403);
-            }
+        // Pindahkan logic query ke model/service. Di sini kita gunakan Local Scope.
+        $query = Reservation::with(['student', 'approver'])
+            ->filter($request->only(['status', 'student_id', 'search'])); // Gunakan scope
 
-            // Query dengan eager loading
-            $query = Reservation::with(['student', 'approver']);
+        $perPage = $request->get('per_page', 15);
+        $reservations = $query->latest()->paginate($perPage); // Tambah latest()
 
-
-            // Filters
-            if ($request->filled('status') && in_array($request->status, ['pending', 'approved', 'rejected'])) {
-                $query->where('status', $request->status);
-            }
-            if ($request->filled('student_id')) {
-                $query->where('student_id', $request->student_id);
-            }
-            if ($request->filled('search')) {
-                $query->where('purpose', 'like', '%' . $request->search . '%');
-            }
-
-            // Pagination
-            $perPage = $request->get('per_page', 15);
-            $reservations = $query->paginate($perPage);
-
-            // Transform data
-            $data = $reservations->map(function ($reservation) {
-                return [
-                    'id' => $reservation->id,
-                    'student' => [
-                        'id' => $reservation->student->id,
-                        'name' => $reservation->student->name,
-                        'email' => $reservation->student->email,
-                        'nim' => $reservation->student->nim ?? null,
-                    ],
-                    'purpose' => $reservation->purpose,
-                    'request_date' => $reservation->request_date,
-                    'status' => $reservation->status,
-                    'rejection_reason' => $reservation->rejection_reason,
-                    'approval_letter' => $reservation->approval_letter ? asset('storage/' . $reservation->approval_letter) : null, // Asumsi storage link
-                    'approved_by' => $reservation->approver ? [
-                        'id' => $reservation->approver->id,
-                        'name' => $reservation->approver->name,
-                    ] : null,
-                    'created_at' => $reservation->created_at,
-                ];
-            });
-
-            return response()->json([
+        // Gunakan API Resource Collection untuk transformasi dan respons standar
+        return ReservationResource::collection($reservations)
+            ->additional([
                 'success' => true,
                 'message' => $reservations->isEmpty() ? 'No reservations found.' : 'List retrieved successfully.',
-                'data' => $data,
-                'pagination' => [
-                    'current_page' => $reservations->currentPage(),
-                    'total_pages' => $reservations->lastPage(),
-                    'total_items' => $reservations->total(),
-                    'per_page' => $reservations->perPage(),
-                ]
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+            ])
+            ->response();
     }
 
-
-    // use ApprovalService
-
-
     /**
-     * Approve a reservation (set status approved, upload letter if provided).
-     * Requires 'approve reservations' permission.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * Approve a reservation.
+     * Validasi dan Otorisasi ditangani oleh ApproveReservationRequest.
+     * Route-Model Binding ($reservation) otomatis melakukan findOrFail.
      */
-
-
-    public function approve(Request $request, $id): JsonResponse
+    public function approve(ApproveReservationRequest $request, Reservation $reservation): JsonResponse
     {
         try {
-            $request->validate([
-                'approval_letter' => 'nullable|file|mimes:pdf|max:2048',
-            ]);
-
-            // Manual load reservation
-            $reservation = Reservation::findOrFail($id);
-
-            $approvedReservation = $this->approvalService->approve(
+            $approvedReservation = $this->approvalService->approveReservation(
                 $reservation,
-                $request->user(),
-                $request->file('approval_letter')
+                $request->user()
             );
 
-            return $this->successResponse(
-                new ReservationResource($approvedReservation->fresh(['student', 'approver'])),
-                'Reservasi berhasil disetujui.'
-            );
-        } catch (\Exception $e) {
-            Log::error('Error saat menyetujui reservasi ID ' . $id . ': ' . $e->getMessage());
-            return $this->exceptionError($e, $e->getMessage(), $e->getCode() ?: 500);
+            // Kembalikan data menggunakan Resource
+            return (new ReservationResource($approvedReservation))
+                ->additional(['success' => true, 'message' => 'Reservation approved successfully.'])
+                ->response();
+        } catch (ReservationAlreadyProcessedException $e) {
+            // Tangani exception kustom jika reservasi sudah diproses
+            return $e->render($request);
+        } catch (Exception $e) {
+            // Tangani error umum
+            return $this->apiError('Error approving reservation.', $e);
         }
     }
 
     /**
      * Reject a reservation.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * Validasi dan Otorisasi ditangani oleh RejectReservationRequest.
+     * Route-Model Binding ($reservation) otomatis melakukan findOrFail.
      */
-    public function reject(Request $request, $id)
+    public function reject(RejectReservationRequest $request, Reservation $reservation): JsonResponse
     {
         try {
-            $user = Auth::user();
-            if (!$user->hasPermissionTo('approve reservations')) {
-                return response()->json(['success' => false, 'message' => 'Forbidden.'], 403);
-            }
+            $rejectedReservation = $this->approvalService->rejectReservation(
+                $reservation,
+                $request->user(),
+                $request->rejection_reason
+            );
 
-            $reservation = Reservation::findOrFail($id);
-            if ($reservation->status !== 'pending') {
-                return response()->json(['success' => false, 'message' => 'Reservation already processed.'], 400);
-            }
-
-            $request->validate([
-                'rejection_reason' => 'required|string|max:255',
-            ]);
-
-            $reservation->update([
-                'status' => 'rejected',
-                'approved_by' => $user->id,
-                'rejection_reason' => $request->rejection_reason,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Reservation rejected successfully.',
-                'data' => $reservation->fresh(),
-            ], 200);
+            // Kembalikan data menggunakan Resource
+            return (new ReservationResource($rejectedReservation))
+                ->additional(['success' => true, 'message' => 'Reservation rejected successfully.'])
+                ->response();
+        } catch (ReservationAlreadyProcessedException $e) {
+            // Tangani exception kustom jika reservasi sudah diproses
+            return $e->render($request);
         } catch (Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error rejecting.', 'error' => $e->getMessage()], 500);
+            // Tangani error umum
+            return $this->apiError('Error rejecting reservation.', $e);
         }
+    }
+
+    /**
+     * Helper untuk response error standar.
+     */
+    protected function apiError(string $message, Exception $e, int $code = 500): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'message' => $message,
+            // Tampilkan pesan error hanya di mode debug
+            'error' => config('app.debug') ? $e->getMessage() : 'An internal error occurred.',
+        ], $code);
     }
 }

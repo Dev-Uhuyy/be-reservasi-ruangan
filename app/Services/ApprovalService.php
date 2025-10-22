@@ -5,83 +5,94 @@ namespace App\Services;
 use App\Events\ReservationApproved;
 use App\Models\Reservation;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use App\Exceptions\ReservationAlreadyProcessedException;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Exception;
-use GuzzleHttp\Psr7\UploadedFile;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Carbon;
 
 class ApprovalService
 {
+    /**
+     * Logika untuk menyetujui reservasi.
+     *
+     * @param Reservation $reservation
+     * @param User $approver
+     * @param UploadedFile|null $letter
+     * @return Reservation
+     * @throws ReservationAlreadyProcessedException
+     */
 
-
-    public function approve(Reservation $reservation, User $admin, ?UploadedFile $uploadedLetter): Reservation
+    public function approveReservation(Reservation $reservation, User $approver): Reservation
     {
-        if ($reservation->status !== 'pending') {
-            throw new \Exception('Hanya reservasi dengan status pending yang bisa diproses.', 409);
-        }
+        $this->checkIfPending($reservation);
 
-        $approvedReservation = DB::transaction(function () use ($reservation, $admin, $uploadedLetter) {
-            $letterPath = null;
+        // 1. Muat relasi yang dibutuhkan oleh Blade PDF
+        // (Blade Anda menggunakan student, details, room, dan schedule)
+        $reservation->loadMissing(['student', 'details.room', 'details.schedule']);
 
-            // Hanya handle file upload manual (jika ada)
-            if ($uploadedLetter && $uploadedLetter->isValid()) {
-                $letterPath = $uploadedLetter->store('letters', 'public');
-                Log::info('Approval letter diunggah manual: ' . $letterPath);
-            }
+        // 2. Generate PDF dari Blade view
+        $pdf = Pdf::loadView('pdfs.approval-letter', ['reservation' => $reservation]);
 
-            // Update reservasi (tanpa generate PDF otomatis)
-            $reservation->update([
-                'status' => 'approved',
-                'approved_by' => $admin->id,
-                'approval_letter' => $letterPath, // null jika tidak ada upload manual
-            ]);
+        // 3. Buat nama file yang unik dan path
+        $timestamp = Carbon::now()->format('Ymd-His');
+        $filename = 'surat-persetujuan-' . $reservation->id . '-' . $timestamp . '.pdf';
+        $letterPath = 'letters/' . $filename; // Path relatif untuk disimpan di DB
 
-            // Update status jadwal terkait menjadi 'booked'
-            foreach ($reservation->details as $detail) {
-                if ($detail->schedule) {
-                    $detail->schedule->update(['status' => 'booked']);
-                }
-            }
+        // 4. Simpan PDF ke disk 'public'
+        Storage::disk('public')->put($letterPath, $pdf->output());
 
-            // Buat histori booking
-            $this->createBookingHistory($reservation);
+        // 5. Update reservasi dengan path PDF yang baru
+        $reservation->update([
+            'status' => 'approved',
+            'approved_by' => $approver->id,
+            'approval_letter' => $letterPath, // Simpan path dari PDF yang di-generate
+            'rejection_reason' => null,
+        ]);
 
-            return $reservation;
-        });
+        // 6. Dispatch event
+        ReservationApproved::dispatch($reservation);
 
-        // Dispatch event setelah transaksi berhasil
-        ReservationApproved::dispatch($approvedReservation);
-        Log::info('Event ReservationApproved di-dispatch untuk ID: ' . $approvedReservation->id);
-
-        return $approvedReservation;
+        // 7. Kembalikan model yang sudah di-refresh
+        return $reservation->fresh(['student', 'approver']);
     }
 
     /**
-     * Membuat entri di booking_histories untuk setiap detail reservasi.
+     * Logika untuk menolak reservasi.
+     *
+     * @param Reservation $reservation
+     * @param User $approver
+     * @param string $reason
+     * @return Reservation
+     * @throws ReservationAlreadyProcessedException
      */
-    protected function createBookingHistory(Reservation $reservation)
+    public function rejectReservation(Reservation $reservation, User $approver, string $reason): Reservation
     {
-        foreach ($reservation->details as $detail) {
-            // Menggunakan relasi hasMany dari model Reservation
-            $reservation->bookingHistories()->updateOrCreate(
-                [
-                    // Kunci unik untuk mencegah duplikasi
-                    'reservation_id' => $reservation->id,
-                    'schedule_id' => $detail->schedule_id,
-                ],
-                [
-                    // Data yang akan dibuat atau diupdate
-                    'room_id' => $detail->room_id,
-                    'student_id' => $reservation->student_id,
-                    'booking_date' => $detail->schedule->date,
-                    'start_time' => $detail->schedule->start_time,
-                    'end_time' => $detail->schedule->end_time,
-                    'usage_status' => 'need_verification',
-                ]
-            );
+        $this->checkIfPending($reservation);
+
+        $reservation->update([
+            'status' => 'rejected',
+            'approved_by' => $approver->id,
+            'rejection_reason' => $reason,
+        ]);
+
+        // Opsional: Kirim event penolakan
+        // ReservationRejected::dispatch($reservation);
+
+        return $reservation->fresh(['student', 'approver']);
+    }
+
+    /**
+     * Cek apakah status reservasi masih 'pending'.
+     *
+     * @param Reservation $reservation
+     * @throws ReservationAlreadyProcessedException
+     */
+    protected function checkIfPending(Reservation $reservation): void
+    {
+        if ($reservation->status !== 'pending') {
+            // Lemparkan exception kustom
+            throw new ReservationAlreadyProcessedException('Reservation already processed.');
         }
     }
 }

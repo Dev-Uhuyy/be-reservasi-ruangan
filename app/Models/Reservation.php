@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 
 class Reservation extends Model
 {
@@ -63,5 +64,23 @@ class Reservation extends Model
     {
         // Saya asumsikan ini relasi yang benar
         return $this->hasMany(ReservationDetail::class, 'reservation_id');
+    }
+
+    public function scopeFilter(Builder $query, array $filters): void
+    {
+        $query->when($filters['status'] ?? null, function ($query, $status) {
+            // Validasi status untuk keamanan
+            if (in_array($status, ['pending', 'approved', 'rejected'])) {
+                $query->where('status', $status);
+            }
+        });
+
+        $query->when($filters['student_id'] ?? null, function ($query, $studentId) {
+            $query->where('student_id', $studentId);
+        });
+
+        $query->when($filters['search'] ?? null, function ($query, $search) {
+            $query->where('purpose', 'like', '%' . $search . '%');
+        });
     }
 }

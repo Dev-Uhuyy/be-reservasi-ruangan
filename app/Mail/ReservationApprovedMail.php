@@ -11,7 +11,9 @@ use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+
 
 class ReservationApprovedMail extends Mailable
 {
@@ -59,9 +61,26 @@ class ReservationApprovedMail extends Mailable
      */
     public function attachments(): array
     {
+        // LOGIKA BARU:
+        // Cek apakah path file ada di database
+        if (empty($this->reservation->approval_letter)) {
+            return [];
+        }
+
+        // Ambil path lengkap file dari disk 'public'
+        $fullPath = Storage::disk('public')->path($this->reservation->approval_letter);
+
+        // Pastikan file-nya benar-benar ada sebelum di-attach
+        if (!Storage::disk('public')->exists($this->reservation->approval_letter)) {
+            // Log error jika file tidak ditemukan
+            Log::error('File attachment tidak ditemukan untuk reservasi ID: ' . $this->reservation->id);
+            return [];
+        }
+
+        // Attach file yang sudah dibuat oleh ApprovalService
         return [
-            Attachment::fromPath(Storage::disk('public')->path($this->reservation->approval_letter))
-                ->as('Surat_Persetujuan.pdf')
+            Attachment::fromPath($fullPath)
+                ->as('Surat-Persetujuan-Reservasi.pdf') // Beri nama yang ramah
                 ->withMime('application/pdf'),
         ];
     }

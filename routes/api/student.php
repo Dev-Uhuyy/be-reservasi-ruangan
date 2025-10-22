@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Student\RoomController;
 use App\Http\Controllers\API\Student\ReservationController;
 
-// --- RUTE STUDENT (UNTUK RIWAYAT PEMINJAMAN) ---
 Route::middleware(['auth:api', 'role:student'])->prefix('student')->group(function () {
     Route::get('/rooms', [RoomController::class, 'index']);
     Route::get('/rooms/{room}', [RoomController::class, 'show']);
