@@ -58,7 +58,7 @@ class Reservation extends Model
     {
         return $this->hasOne(BookingHistory::class);
     }
-    
+
     public function reservationDetails()
     {
         // Saya asumsikan ini relasi yang benar

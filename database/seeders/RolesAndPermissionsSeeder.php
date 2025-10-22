@@ -67,8 +67,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view reservations',
             'verify reservations',
             'view rooms',
-            'view verification history',
-            'view rooms'
+            'view verification history'
         ]);
 
         $student = Role::firstOrCreate(['name' => 'student', 'guard_name' => 'api']);
