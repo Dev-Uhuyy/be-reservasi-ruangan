@@ -11,12 +11,12 @@ class Reservation extends Model
 
     protected $table = 'reservations';
 
-    /**
-     * DIUBAH: Disesuaikan dengan Service dan Migrasi
-     * 1. 'purpose' ditambahkan (dari Migrasi & Service)
-     * 2. 'request_date' ditambahkan (dari Migrasi)
-     * 3. 'room_id' dan 'schedule_id' DIHAPUS (karena tidak ada di Migrasi)
-     */
+    public function getRouteKeyName()
+    {
+        return 'id';
+    }
+
+
     protected $fillable = [
         'student_id',
         'purpose',          // <-- DITAMBAHKAN
@@ -47,7 +47,7 @@ class Reservation extends Model
      */
     public function details()
     {
-        return $this->hasMany(ReservationDetail::class);
+        return $this->hasMany(ReservationDetail::class, 'reservation_id');
     }
 
     /**
@@ -56,7 +56,7 @@ class Reservation extends Model
      */
     public function bookingHistory()
     {
-        return $this->hasOne(BookingHistory::class);
+        return $this->hasOne(BookingHistory::class, 'reservation_id');
     }
 
     public function reservationDetails()

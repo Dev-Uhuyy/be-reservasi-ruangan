@@ -32,7 +32,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'create schedules',
             'edit schedules',
             'delete schedules',
-            'view verification history'
+            'view verification history',
+            'approve reservations'
         ];
 
         foreach ($permissions as $permission) {
@@ -59,7 +60,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'view schedules',
             'create schedules',
             'edit schedules',
-            'delete schedules'
+            'delete schedules',
+            'approve reservations'
         ]);
 
         $staff = Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'api']);

@@ -1,4 +1,3 @@
-// resources/views/emails/reservation-approved.blade.php
 <!DOCTYPE html>
 <html>
 <head>

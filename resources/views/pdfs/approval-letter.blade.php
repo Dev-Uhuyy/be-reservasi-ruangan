@@ -1,4 +1,3 @@
-// resources/views/pdfs/approval-letter.blade.php
 <!DOCTYPE html>
 <html>
 <head>

@@ -2,15 +2,30 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\ReservationApproved;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ReservationResource;
 use App\Models\Reservation;
+use App\Services\ApprovalService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Exception;
-use Illuminate\Support\Facades\Storage; // Jika butuh handle file upload untuk approval_letter
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ApprovalController extends Controller
 {
+    protected $approvalService;
+
+    public function __construct(ApprovalService $approvalService)
+    {
+        $this->approvalService = $approvalService;
+    }
+
+
     /**
      * Display a listing of reservations for approval.
      * Accessible via permission 'view reservations' (admin only via route middleware).
@@ -21,8 +36,6 @@ class ApprovalController extends Controller
     public function index(Request $request)
     {
         try {
-            // Auth sudah di-handle oleh middleware 'auth:api' dan 'permission:view reservations'
-            // Tambahan check role jika diperlukan (redundan tapi aman)
             $user = Auth::user();
             if (!$user->hasRole('admin')) {
                 return response()->json([
@@ -88,10 +101,14 @@ class ApprovalController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred.',
-                'error' => $e->getMessage(), // Hapus di production
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
+
+
+    // use ApprovalService
+
 
     /**
      * Approve a reservation (set status approved, upload letter if provided).
@@ -101,41 +118,31 @@ class ApprovalController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function approve(Request $request, $id)
+
+
+    public function approve(Request $request, $id): JsonResponse
     {
         try {
-            $user = Auth::user();
-            if (!$user->hasPermissionTo('approve reservations')) {
-                return response()->json(['success' => false, 'message' => 'Forbidden.'], 403);
-            }
-
-            $reservation = Reservation::findOrFail($id);
-            if ($reservation->status !== 'pending') {
-                return response()->json(['success' => false, 'message' => 'Reservation already processed.'], 400);
-            }
-
             $request->validate([
-                'approval_letter' => 'nullable|file|mimes:pdf|max:2048', // Opsional upload letter
+                'approval_letter' => 'nullable|file|mimes:pdf|max:2048',
             ]);
 
-            $letterPath = null;
-            if ($request->hasFile('approval_letter')) {
-                $letterPath = $request->file('approval_letter')->store('letters', 'public');
-            }
+            // Manual load reservation
+            $reservation = Reservation::findOrFail($id);
 
-            $reservation->update([
-                'status' => 'approved',
-                'approved_by' => $user->id,
-                'approval_letter' => $letterPath ?? $reservation->approval_letter,
-            ]);
+            $approvedReservation = $this->approvalService->approve(
+                $reservation,
+                $request->user(),
+                $request->file('approval_letter')
+            );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Reservation approved successfully.',
-                'data' => $reservation->fresh(['student', 'approver']),
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error approving.', 'error' => $e->getMessage()], 500);
+            return $this->successResponse(
+                new ReservationResource($approvedReservation->fresh(['student', 'approver'])),
+                'Reservasi berhasil disetujui.'
+            );
+        } catch (\Exception $e) {
+            Log::error('Error saat menyetujui reservasi ID ' . $id . ': ' . $e->getMessage());
+            return $this->exceptionError($e, $e->getMessage(), $e->getCode() ?: 500);
         }
     }
 
@@ -150,7 +157,7 @@ class ApprovalController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user->hasPermissionTo('approve reservations')) { // Reuse permission
+            if (!$user->hasPermissionTo('approve reservations')) {
                 return response()->json(['success' => false, 'message' => 'Forbidden.'], 403);
             }
 
