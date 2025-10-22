@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Reservation extends Model
 {
+    use HasFactory;
+
     protected $table = 'reservations';
 
     /**
@@ -24,12 +27,14 @@ class Reservation extends Model
         'status',
     ];
 
+    /**
+     * Relasi ke mahasiswa yang membuat reservasi.
+     */
     public function student()
     {
         return $this->belongsTo(User::class, 'student_id');
     }
 
-    // ... (relasi room() dan schedule() Anda sebenarnya tidak terpakai di sini) ...
 
     public function approver()
     {
@@ -37,14 +42,26 @@ class Reservation extends Model
     }
 
     /**
-     * DIUBAH: Nama relasi diubah dari bookingHistories() menjadi reservationDetails()
-     * agar sesuai dengan panggilan di ReservationService.
-     *
-     * Pastikan Anda punya model ReservationDetails.
+     * RELASI BARU: Menghubungkan ke detail-detailnya (ruangan & jadwal yang dipesan).
+     * Ini adalah inti dari sistem multi-reservasi kita.
      */
+    public function details()
+    {
+        return $this->hasMany(ReservationDetail::class);
+    }
+
+    /**
+     * DIPERBAIKI: Relasi yang benar adalah hasOne.
+     * Satu reservasi hanya akan menghasilkan satu catatan histori.
+     */
+    public function bookingHistory()
+    {
+        return $this->hasOne(BookingHistory::class);
+    }
+
     public function reservationDetails()
     {
         // Saya asumsikan ini relasi yang benar
-        return $this->hasMany(ReservationDetails::class, 'reservation_id');
+        return $this->hasMany(ReservationDetail::class, 'reservation_id');
     }
 }
