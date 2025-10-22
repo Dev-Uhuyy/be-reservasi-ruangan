@@ -58,7 +58,9 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
     // Reservations approval
     Route::middleware('permission:view reservations')->group(function () {
         Route::get('/reservations', [ApprovalController::class, 'index']);
-        Route::put('/reservations/{id}/approve', [ApprovalController::class, 'approve']);
-        Route::put('/reservations/{id}/reject', [ApprovalController::class, 'reject']);
+    });
+    Route::middleware('permission:approve reservations')->group(function () {;
+        Route::put('/reservations/{reservation}/approve', [ApprovalController::class, 'approve']);
+        Route::put('/reservations/{reservation}/reject', [ApprovalController::class, 'reject']);
     });
 });
