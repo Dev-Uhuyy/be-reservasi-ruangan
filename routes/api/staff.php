@@ -26,5 +26,4 @@ Route::middleware(['auth:api', 'permission:verify reservations'])->prefix('staff
         Route::get('/history', [HistoryController::class, 'index']);
     });
 
-
 });
