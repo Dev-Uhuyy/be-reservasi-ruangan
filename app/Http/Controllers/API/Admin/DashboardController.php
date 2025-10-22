@@ -22,7 +22,7 @@ class DashboardController extends Controller
         try {
             // get dashboard
             $dashboardDataAdmin = $this->dashboardService->dashboardAdmin();
-            
+
             // return success response
             return $this->successResponse($dashboardDataAdmin, 'Data admin dashboard berhasil di ambil');
         } catch (Throwable $e) {

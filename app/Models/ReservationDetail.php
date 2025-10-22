@@ -22,7 +22,7 @@ class ReservationDetail extends Model
      */
     public function reservation()
     {
-        return $this->belongsTo(Reservation::class);
+        return $this->belongsTo(Reservation::class, 'reservation_id');
     }
 
     /**
@@ -30,7 +30,7 @@ class ReservationDetail extends Model
      */
     public function room()
     {
-        return $this->belongsTo(Room::class);
+        return $this->belongsTo(Room::class, 'room_id');
     }
 
     /**
@@ -38,6 +38,6 @@ class ReservationDetail extends Model
      */
     public function schedule()
     {
-        return $this->belongsTo(Schedule::class);
+        return $this->belongsTo(Schedule::class, 'schedule_id');
     }
 }

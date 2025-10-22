@@ -45,6 +45,33 @@ class BookingHistory extends Model
         return $this->belongsTo(User::class, 'student_id');
     }
 
+    public function getCombinedStatusAttribute(): ?string // Return type diubah ke nullable string
+    {
+        // Pastikan relasi reservation ada
+        if ($this->reservation) {
+            // Jika reservasi ditolak, langsung kembalikan 'rejected'
+            if ($this->reservation->status === 'rejected') {
+                return 'rejected';
+            }
 
+            // Jika reservasi disetujui, cek status penggunaan
+            if ($this->reservation->status === 'approved') {
+                if ($this->usage_status === 'used') {
+                    return 'approved/used';
+                }
+                if ($this->usage_status === 'unused') {
+                    return 'approved/unused';
+                }
+                // Jika masih need_verification, anggap belum masuk history final
+                // Kembalikan null agar difilter oleh service jika perlu
+                if ($this->usage_status === 'need_verification') {
+                   return null; // Atau 'approved' jika ingin tetap ditampilkan
+                }
+            }
+        }
+
+        // Jika status pending atau data tidak konsisten, kembalikan null
+        return null;
+    }
 
 }
