@@ -13,17 +13,17 @@ class DashboardService
 {
     /**
      * Create a new class instance.
-     * 
+     *
      */
     public function dashboardAdmin(){
         $today = now()->toDateString();
-        
+
         // total reservasi hari ini
         $totalReservationTodey = Reservation::whereDate('created_at', $today)->count();
 
         // total checkin hari ini
         $totalCheckinToday = BookingHistory::where('usage_status', 'used')
-        ->whereDate('verified_at', $today)    
+        ->whereDate('verified_at', $today)
         ->count();
 
         // total ruang tersedia
@@ -38,12 +38,12 @@ class DashboardService
             ->get();
 
         $antrianPersetujuan = Reservation::where('status', 'pending')
-            ->with('student:id,name', 'details.room:id,room_name', 'details.schedule:id,date,start_time') 
+            ->with('student:id,name', 'details.room:id,room_name', 'details.schedule:id,date,start_time')
             ->latest()
             ->limit(10)
-            ->get(); 
-            
-            
+            ->get();
+
+
         return [
             'total_reservasi_hari_ini' => $totalReservationTodey,
             'total_checkin_hari_ini' => $totalCheckinToday,
@@ -51,7 +51,7 @@ class DashboardService
             'grafik_penggunaan_ruangan' => $grafikPenggunaan,
             'list_antrian_persetujuan' => $antrianPersetujuan
         ];
-    } 
+    }
 
     public function dashboardStaff(User $staff){
 
@@ -62,7 +62,7 @@ class DashboardService
         $totalAvailableRoomStaff = Room::where('status','active')
             ->where('floor', $staff->floor)
             ->count();
-        
+
         // 2. total ruangan yang aktif
         $jumlahRuanganDigunakan = Room::where('floor', $staff->floor)
             ->whereHas('schedules', function ($q) {
@@ -71,7 +71,7 @@ class DashboardService
                   ->where('start_time', '<=', now()->toTimeString())
                   ->where('end_time', '>=', now()->toTimeString());
             })->count();
-        
+
         // 3. total menunggu verifikasi
         $totalMenungguVerifikasi = BookingHistory::where('usage_status','need_verification')
             ->whereDate('booking_date', $today)
@@ -101,7 +101,7 @@ class DashboardService
         // Logic for student dashboard
         // 1. total peminjaman ruangan
         $totalPeminjamanRuangan = Room::where('student_id', $student->id)->count();
-        
+
         // 2. total ruangan yang di setujui
         $totalRuanganApproved = Reservation::where('student_id', $student->id)
             ->where('status','approved')
@@ -118,12 +118,12 @@ class DashboardService
             ->count();
 
         // 5. Peminjaman Mendatang
-        $peminjamanMendatang = Reservation::where('student_id', $student->id) 
+        $peminjamanMendatang = Reservation::where('student_id', $student->id)
             ->where('status', 'approved') // 2. Filter Status
             ->whereHas('details.schedule', function ($query) { // 3. Filter Cerdas Berdasarkan Relasi
                 $query->where('date', '>=', now()->toDateString());
             })
-            ->with('details.room:id,room_name', 'details.schedule:id,date,start_time') 
+            ->with('details.room:id,room_name', 'details.schedule:id,date,start_time')
             ->latest('created_at') // 5. Pengurutan
             ->limit(3) // 6. Pembatasan Hasil
             ->get(); // 7. Eksekusi

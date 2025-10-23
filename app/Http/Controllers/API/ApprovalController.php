@@ -81,7 +81,6 @@ class ApprovalController extends Controller
                 $request->rejection_reason
             );
 
-
             // Kembalikan data menggunakan Resource
             return (new ReservationResource($rejectedReservation))
                 ->additional(['success' => true, 'message' => 'Reservation rejected successfully.'])

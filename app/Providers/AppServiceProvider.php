@@ -2,10 +2,11 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use App\Events\ReservationApproved;
-use App\Events\ReservationRejected;
 use App\Listeners\SendApprovalNotification;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
+use App\Events\ReservationRejected;
 use App\Listeners\SendRejectionNotification;
 
 class AppServiceProvider extends ServiceProvider
