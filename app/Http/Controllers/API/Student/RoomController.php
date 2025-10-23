@@ -8,6 +8,7 @@ use App\Http\Resources\RoomCollection;
 use App\Http\Resources\RoomResource;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use PhpParser\Node\Stmt\TryCatch;
 
 class RoomController extends Controller
 {
@@ -22,13 +23,21 @@ class RoomController extends Controller
     {
         $filters = $request->only(['search', 'floor', 'date', 'start_time', 'end_time']);
         $rooms = $this->roomService->getAvailableRoomsForStudent($filters);
+
         return new RoomCollection($rooms);
     }
 
     public function show(Request $request, Room $room)
     {
-        $filters = $request->only(['date', 'status']);
-        $schedules = $this->roomService->getSchedulesForRoomStudent($room, $filters);
-        return new RoomResource($room->setAttribute('schedules', $schedules));
+        try {
+            $filters = $request->only(['date', 'status']);
+            $schedules = $this->roomService->getSchedulesForRoomStudent($room, $filters);
+            return new RoomResource($room->setAttribute('schedules', $schedules));
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while fetching room details.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

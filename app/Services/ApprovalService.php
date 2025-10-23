@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Events\ReservationApproved;
+use App\Events\ReservationRejected;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -78,6 +79,8 @@ class ApprovalService
 
         // Opsional: Kirim event penolakan
         // ReservationRejected::dispatch($reservation);
+
+        ReservationRejected::dispatch($reservation);
 
         return $reservation->fresh(['student', 'approver']);
     }
