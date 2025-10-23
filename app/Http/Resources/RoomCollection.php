@@ -26,6 +26,9 @@ class RoomCollection extends ResourceCollection
                 'last_page' => $this->lastPage(), // Changed from $this->collection->lastPage()
                 'from' => $this->firstItem(), // Changed from $this->collection->firstItem()
                 'to' => $this->lastItem(), // Changed from $this->collection->lastItem()
+                'status_code' => 201,
+                'success' => true,
+                'message' => 'Data Room berhasil!'
             ]
         ];
     }
