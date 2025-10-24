@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
@@ -11,10 +12,8 @@ use App\Services\RoomService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-
 class RoomsController extends Controller
 {
-    // Inject RoomService melalui constructor agar bisa digunakan di semua method
     public function __construct(protected RoomService $roomService)
     {
     }
@@ -24,7 +23,6 @@ class RoomsController extends Controller
      */
     public function index(Request $request): RoomCollection
     {
-        // Delegasikan tugas ke RoomService
         $rooms = $this->roomService->getAllRooms($request);
         return new RoomCollection($rooms);
     }
@@ -34,18 +32,14 @@ class RoomsController extends Controller
      */
     public function store(RoomRequest $request): JsonResponse
     {
-        // Validasi terjadi secara otomatis oleh RoomRequest.
-        // Jika gagal, controller tidak akan pernah menjalankan kode ini.
         $room = $this->roomService->createRoom($request->validated());
 
-        return response()->json([
-            'data' => new RoomResource($room),
-            'meta' => [
-                'status_code' => 201,
-                'success' => true,
-                'message' => 'Ruangan berhasil ditambahkan!'
-            ]
-        ], 201);
+        // Menggunakan template dari Controller
+        return $this->successResponse(
+            new RoomResource($room),
+            'Ruangan berhasil ditambahkan!',
+            201
+        );
     }
 
     /**
@@ -53,14 +47,11 @@ class RoomsController extends Controller
      */
     public function show(Room $room): JsonResponse
     {
-        return response()->json([
-            'data' => new RoomResource($room),
-            'meta' => [
-                'status_code' => 200,
-                'success' => true,
-                'message' => 'Data ruangan berhasil diambil!'
-            ]
-        ], 200);
+        // Menggunakan template dari Controller
+        return $this->successResponse(
+            new RoomResource($room),
+            'Data ruangan berhasil diambil!'
+        );
     }
 
     /**
@@ -68,17 +59,13 @@ class RoomsController extends Controller
      */
     public function update(RoomRequest $request, Room $room): JsonResponse
     {
-        // Validasi juga terjadi secara otomatis oleh RoomRequest.
         $updatedRoom = $this->roomService->updateRoom($room, $request->validated());
 
-        return response()->json([
-            'data' => new RoomResource($updatedRoom),
-            'meta' => [
-                'status_code' => 200,
-                'success' => true,
-                'message' => 'Data ruangan berhasil diperbarui!'
-            ]
-        ], 200);
+        // Menggunakan template dari Controller
+        return $this->successResponse(
+            new RoomResource($updatedRoom),
+            'Data ruangan berhasil diperbarui!'
+        );
     }
 
     /**
@@ -88,14 +75,10 @@ class RoomsController extends Controller
     {
         $this->roomService->deleteRoom($room);
 
-        return response()->json([
-            'data' => null,
-            'meta' => [
-                'status_code' => 200,
-                'success' => true,
-                'message' => 'Ruangan berhasil dihapus!'
-            ]
-        ], 200);
+        // Menggunakan template dari Controller
+        return $this->successResponse(
+            null,
+            'Ruangan berhasil dihapus!'
+        );
     }
 }
-

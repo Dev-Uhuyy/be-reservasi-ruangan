@@ -33,35 +33,14 @@ class ReservationController extends Controller
             // Muat relasi yang diperlukan sebelum dikirim ke Resource
             $reservation->load('student', 'reservationDetails.schedule');
 
-            /**
-             * KODE YANG SUDAH DIPERBAIKI:
-             * Gunakan ->additional() untuk menambahkan metadata,
-             * dan panggil SEBELUM ->response().
-             */
-            return (new ReservationResource($reservation))
-                ->additional(['meta' => [
-                    'message' => 'Reservasi berhasil dibuat.',
-                    'success' => true,
-                    'status_code' => 201,
-                ]])
-                ->response()
-                ->setStatusCode(201);
+            return $this->successResponse(
+                new ReservationResource($reservation),
+                'Reservasi berhasil dibuat.',
+                201
+            );
         } catch (Exception $e) {
             // Catat error untuk debugging
-            Log::error('Reservation failed: ' . $e->getMessage());
-
-            // Jika exception karena race condition (sesuai pesan di service)
-            if ($e->getMessage() === "Jadwal sudah tidak tersedia.") {
-                // Kembalikan respons error 409 Conflict
-                return response()->json([
-                    'message' => $e->getMessage()
-                ], 409); // 409 Conflict
-            }
-
-            // Untuk error lainnya
-            return response()->json([
-                'message' => 'Terjadi kesalahan internal saat memproses reservasi Anda.'
-            ], 500);
+            return $this->exceptionError($e, 'Gagal membuat reservasi.');
         }
     }
 }

@@ -77,8 +77,7 @@ class ApprovalService
             'rejection_reason' => $reason,
         ]);
 
-        // Opsional: Kirim event penolakan
-        // ReservationRejected::dispatch($reservation);
+        $reservation->load('student');
 
         ReservationRejected::dispatch($reservation);
 

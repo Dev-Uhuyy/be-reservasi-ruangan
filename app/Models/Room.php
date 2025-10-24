@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\ReservationDetail;
 class Room extends Model
 {
     protected $table = 'rooms';
@@ -23,7 +23,7 @@ class Room extends Model
 
     public function reservations()
     {
-        return $this->hasMany(ReservationDetails::class, 'room_id');
+        return $this->hasMany(ReservationDetail::class, 'room_id');
     }
 
 

@@ -16,6 +16,6 @@ class ReservationAlreadyProcessedException extends Exception
         return response()->json([
             'success' => false,
             'message' => $this->getMessage() ?: 'Reservation already processed.',
-        ], 400); // 400 Bad Request
+        ], 400); 
     }
 }

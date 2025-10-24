@@ -14,8 +14,6 @@ Route::middleware('auth:api')->prefix('admin')->group(function () {
 
     // User management
     Route::get('users', [UserController::class, 'index'])->middleware('permission:view users');
-    Route::get('users/staff/', [UserController::class, 'showStaff'])->middleware('permission:view users');
-    Route::get('users/student/{user}', [UserController::class, 'showStudent'])->middleware('permission:view users');
     Route::get('users/{user}', [UserController::class, 'show'])->middleware('permission:view users');
     Route::post('users', [UserController::class, 'store'])->middleware('permission:create users');
     Route::put('users/{user}', [UserController::class, 'update'])->middleware('permission:edit users');

@@ -13,14 +13,17 @@ class ScheduleCollection extends ResourceCollection
         return [
             'data' => ScheduleResource::collection($this->collection),
             'meta' => [
-                "success" => true,
-                "message" => "Data jadwal berhasil diambil!",
+                'status_code' => 200,
+                'success' => true,
+                'message' => 'Data jadwal berhasil diambil!',
                 'pagination' => [
-                    "total" => $this->total(),
-                    "count" => $this->count(),
-                    "per_page" => (int)$this->perPage(),
-                    "current_page" => $this->currentPage(),
-                    "total_pages" => $this->lastPage(),
+                    'total' => $this->total(),
+                    'count' => $this->count(),
+                    'per_page' => (int)$this->perPage(),
+                    'current_page' => $this->currentPage(),
+                    'total_pages' => $this->lastPage(),
+                    'from' => $this->firstItem(),
+                    'to' => $this->lastItem(),
                 ]
             ]
         ];

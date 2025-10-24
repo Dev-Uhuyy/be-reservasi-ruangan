@@ -4,8 +4,8 @@ namespace App\Http\Controllers\API\Student;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Student\BorrowHistoryCollection;
-use App\Http\Resources\Student\BorrowHistoryResource; // <-- Tambahkan ini
-use App\Models\BookingHistory; // <-- Tambahkan ini
+use App\Http\Resources\Student\BorrowHistoryResource; 
+use App\Models\BookingHistory; 
 use App\Services\BorrowHistoryService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;

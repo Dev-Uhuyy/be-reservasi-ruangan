@@ -16,17 +16,19 @@ class UserCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            // Setiap item akan diformat menggunakan UserResource
             'data' => UserResource::collection($this->collection),
             'meta' => [
-                "success" => true,
-                "message" => "Success get User List",
+                'status_code' => 200, 
+                'success' => true,
+                'message' => 'Daftar pengguna berhasil diambil!',
                 'pagination' => [
-                    "total" => $this->total(),
-                    "count" => $this->count(),
-                    "per_page" => (int)$this->perPage(),
-                    "current_page" => $this->currentPage(),
-                    "total_pages" => $this->lastPage(),
+                    'total' => $this->total(),
+                    'count' => $this->count(),
+                    'per_page' => (int)$this->perPage(),
+                    'current_page' => $this->currentPage(),
+                    'total_pages' => $this->lastPage(),
+                    'from' => $this->firstItem(),
+                    'to' => $this->lastItem(),
                 ]
             ]
         ];

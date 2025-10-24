@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Reservasi Ditolak</title>
+    <title>Reservasi Disetujui</title>
     <style>
         /* Reset */
         body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
@@ -19,7 +19,7 @@
 
 <body style="margin: 0 !important; padding: 0 !important; background-color: #f4f4f4; font-family: Arial, sans-serif;">
 
-    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffe8e8">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#eaf6ff">
         <tr>
             <td align="center" style="padding: 40px 15px 30px 15px;">
                 
@@ -32,7 +32,7 @@
                     <tr>
                         <td align="center" style="padding-top: 25px;">
                             <h1 style="font-size: 28px; font-weight: bold; color: #1a1a1a; margin: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
-                                Reservasi Ditolak
+                                Reservasi anda telah Disetujui!
                             </h1>
                         </td>
                     </tr>
@@ -49,26 +49,34 @@
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td style="font-family: Arial, sans-serif; font-size: 18px; line-height: 24px; color: #333333; padding-bottom: 10px;">
-                            Mohon Maaf,
+                            Kabar Baik,
                         </td>
                     </tr>
                     <tr>
                         <td style="font-family: Arial, sans-serif; font-size: 22px; font-weight: bold; line-height: 28px; color: #1a1a1a; padding-bottom: 20px;">
-                            {{ $reservation->student->name }}
+                            {{ $reservation->student->name }}!
                         </td>
                     </tr>
                     <tr>
                         <td style="font-family: Arial, sans-serif; font-size: 16px; line-height: 24px; color: #555555;">
-                            Dengan menyesal kami informasikan bahwa reservasi Anda untuk tujuan "<b>{{ $reservation->purpose }}</b>" telah ditolak.
-                            <br><br>
-                            <b>Alasan penolakan:</b><br>
-                            {{ $reservation->rejection_reason ?? 'Tidak ada alasan spesifik yang diberikan.' }}
-                            <br><br>
-                            Anda dapat mengajukan reservasi baru kapan saja melalui dashboard. Jika ada pertanyaan, jangan ragu untuk menghubungi admin.
+                            Reservasi Anda untuk tujuan "<b>{{ $reservation->purpose }}</b>" disetujui. Mohon tunjukkan surat ini kepada staff saat akan menggunakan ruangan.
                         </td>
                     </tr>
                     
-
+                    <tr>
+                        <td align="center" style="padding-top: 30px;">
+                            <table border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td align="center" style="border-radius: 5px;" bgcolor="#003D73">
+                                        <a href="{{ $downloadUrl }}" target="_blank" style="font-size: 16px; font-family: Arial, sans-serif; font-weight: bold; color: #ffffff; text-decoration: none; padding: 12px 25px; border: 1px solid #003D73; display: inline-block; border-radius: 5px;">
+                                            Unduh Surat Persetujuan
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
                     <tr>
                         <td align="center" style="padding-top: 40px;">
                             
