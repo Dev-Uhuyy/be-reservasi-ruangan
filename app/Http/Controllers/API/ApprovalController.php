@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Exception;
-use App\Services\ApprovalService; // Import Service
-use App\Http\Resources\ReservationResource; // Import Resource
-use App\Http\Requests\ApproveReservationRequest; // Import Form Request
-use App\Http\Requests\RejectReservationRequest; // Import Form Request
-use App\Exceptions\ReservationAlreadyProcessedException; // Import Exception Kustom
+use App\Services\ApprovalService;
+use App\Http\Resources\ReservationResource;
+use App\Http\Requests\ApproveReservationRequest;
+use App\Http\Requests\RejectReservationRequest;
+use App\Exceptions\ReservationAlreadyProcessedException;
 use Illuminate\Http\JsonResponse;
 
 class ApprovalController extends Controller
@@ -25,14 +25,10 @@ class ApprovalController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        // Pindahkan logic query ke model/service. Di sini kita gunakan Local Scope.
         $query = Reservation::with(['student', 'approver'])
-            ->filter($request->only(['status', 'student_id', 'search'])); // Gunakan scope
-
+            ->filter($request->only(['status', 'student_id', 'search'])); 
         $perPage = $request->get('per_page', 15);
-        $reservations = $query->latest()->paginate($perPage); // Tambah latest()
-
-        // Gunakan API Resource Collection untuk transformasi dan respons standar
+        $reservations = $query->latest()->paginate($perPage); 
         return ReservationResource::collection($reservations)
             ->additional([
                 'success' => true,
@@ -54,16 +50,14 @@ class ApprovalController extends Controller
                 $request->user()
             );
 
-            // Kembalikan data menggunakan Resource
-            return (new ReservationResource($approvedReservation))
-                ->additional(['success' => true, 'message' => 'Reservation approved successfully.'])
-                ->response();
+            return $this->successResponse(
+                new ReservationResource($approvedReservation),
+                'Reservation approved successfully.'
+            );
         } catch (ReservationAlreadyProcessedException $e) {
-            // Tangani exception kustom jika reservasi sudah diproses
             return $e->render($request);
         } catch (Exception $e) {
-            // Tangani error umum
-            return $this->apiError('Error approving reservation.', $e);
+            return $this->exceptionError($e, 'Error approving reservation.', 500);
         }
     }
 
@@ -81,29 +75,14 @@ class ApprovalController extends Controller
                 $request->rejection_reason
             );
 
-            // Kembalikan data menggunakan Resource
-            return (new ReservationResource($rejectedReservation))
-                ->additional(['success' => true, 'message' => 'Reservation rejected successfully.'])
-                ->response();
+            return $this->successResponse(
+                new ReservationResource($rejectedReservation),
+                'Reservation rejected successfully.'
+            );
         } catch (ReservationAlreadyProcessedException $e) {
-            // Tangani exception kustom jika reservasi sudah diproses
             return $e->render($request);
         } catch (Exception $e) {
-            // Tangani error umum
-            return $this->apiError('Error rejecting reservation.', $e);
+            return $this->exceptionError($e, 'Error rejecting reservation.', 500);
         }
-    }
-
-    /**
-     * Helper untuk response error standar.
-     */
-    protected function apiError(string $message, Exception $e, int $code = 500): JsonResponse
-    {
-        return response()->json([
-            'success' => false,
-            'message' => $message,
-            // Tampilkan pesan error hanya di mode debug
-            'error' => config('app.debug') ? $e->getMessage() : 'An internal error occurred.',
-        ], $code);
     }
 }

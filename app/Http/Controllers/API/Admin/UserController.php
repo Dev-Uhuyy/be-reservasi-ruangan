@@ -29,7 +29,6 @@ class UserController extends Controller
     {
         try {
             $users = $this->userService->getUsers($request->all());
-            // Gunakan Collection untuk respons daftargit
             return new UserCollection($users);
         } catch (\Throwable $e) {
             return $this->exceptionError($e, 'Gagal mengambil data pengguna');
@@ -43,8 +42,11 @@ class UserController extends Controller
     {
         try {
             $user = $this->userService->createUser($request->validated());
-            // Gunakan Resource untuk respons tunggal
-            return $this->successResponse(new UserResource($user), 'Pengguna berhasil dibuat', 201);
+            return $this->successResponse(
+                new UserResource($user), 
+                'Pengguna berhasil dibuat', 
+                201
+            );
         } catch (\Throwable $e) {
             return $this->exceptionError($e, 'Gagal membuat pengguna');
         }
@@ -55,7 +57,15 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return $this->successResponse(new UserResource($user), 'Detail pengguna berhasil diambil');
+        try {
+            // Gunakan template dari Controller
+            return $this->successResponse(
+                new UserResource($user), 
+                'Detail pengguna berhasil diambil'
+            );
+        } catch (\Throwable $e) {
+            return $this->exceptionError($e, 'Gagal mengambil detail pengguna');
+        }
     }
 
     /**
@@ -65,7 +75,11 @@ class UserController extends Controller
     {
         try {
             $updatedUser = $this->userService->updateUser($user, $request->validated());
-            return $this->successResponse(new UserResource($updatedUser), 'Pengguna berhasil diperbarui');
+            // Gunakan template dari Controller
+            return $this->successResponse(
+                new UserResource($updatedUser), 
+                'Pengguna berhasil diperbarui'
+            );
         } catch (\Throwable $e) {
             return $this->exceptionError($e, 'Gagal memperbarui pengguna');
         }
@@ -78,60 +92,36 @@ class UserController extends Controller
     {
         try {
             $this->userService->deleteUser($user);
-            return $this->successResponse(null, 'Pengguna berhasil dihapus');
+            // Gunakan template dari Controller
+            return $this->successResponse(
+                null, 
+                'Pengguna berhasil dihapus'
+            );
         } catch (\Throwable $e) {
             return $this->exceptionError($e, 'Gagal menghapus pengguna');
         }
     }
 
-    // public function showStaff(User $user)
-    // {
-    //     // if (!$user->hasRole('staff')) {
-    //     //     return $this->exceptionError('User bukan staff', 400);
-    //     // }
-
-    //     // return $this->successResponse(new UserResource($user), 'Detail pengguna berhasil diambil');
-
-    //     try {
-    //         // 2. Delegasikan logika ke service
-    //         $staff = $this->userService->showStaff($user->id);
-
-    //         // 3. Kembalikan response sukses jika tidak ada exception
-    //         return $this->successResponse(new UserResource($staff), 'Detail staff berhasil diambil');
-    //     } catch (ModelNotFoundException $e) {
-    //         return $this->exceptionError('User tidak ditemukan', 404);
-    //     } catch (Exception $e) {
-    //         // 4. Tangkap exception dari service dan format sebagai response error
-    //         return $this->exceptionError($e->getMessage(), $e->getCode() ?: 400);
-    //     }
-    // }
-
-    // public function showStudent(User $user)
-    // {
-    //     try {
-    //         $student = $this->userService->showStudent($user->id);
-
-    //         return $this->successResponse(new UserResource($student), 'Detail student berhasil diambil');
-    //     } catch (ModelNotFoundException $e) {
-    //         return $this->exceptionError('User tidak ditemukan', 404);
-    //     } catch (Exception $e) {
-    //         return $this->exceptionError($e->getMessage(), $e->getCode() ?: 400);
-    //     }
-    // }
-
+    /**
+     * Menampilkan daftar semua staff.
+     */
     public function indexStaff()
     {
         try {
-            // Panggil service untuk mendapatkan daftar staff yang sudah dipaginasi
             $staff = $this->userService->getAllStaff();
 
-            // Gunakan UserResource::collection untuk mengubah koleksi data
+            // Jika data sudah dipaginasi, gunakan Collection
+            if (method_exists($staff, 'items')) {
+                return new UserCollection($staff);
+            }
+
+            // Jika data collection biasa, gunakan template dari Controller
             return $this->successResponse(
                 UserResource::collection($staff),
                 'Daftar staff berhasil diambil'
             );
         } catch (Exception $e) {
-            return $this->exceptionError('Gagal mengambil data staff: ' . $e->getMessage(), 500);
+            return $this->exceptionError($e, 'Gagal mengambil data staff', 500);
         }
     }
 
@@ -143,12 +133,18 @@ class UserController extends Controller
         try {
             $students = $this->userService->getAllStudents();
 
+            // Jika data sudah dipaginasi, gunakan Collection
+            if (method_exists($students, 'items')) {
+                return new UserCollection($students);
+            }
+
+            // Jika data collection biasa, gunakan template dari Controller
             return $this->successResponse(
                 UserResource::collection($students),
                 'Daftar student berhasil diambil'
             );
         } catch (Exception $e) {
-            return $this->exceptionError('Gagal mengambil data student: ' . $e->getMessage(), 500);
+            return $this->exceptionError($e, 'Gagal mengambil data student', 500);
         }
     }
 }

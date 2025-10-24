@@ -12,16 +12,19 @@ class BorrowHistoryCollection extends ResourceCollection
         return [
             'data' => BorrowHistoryResource::collection($this->collection),
             'meta' => [
-                "success" => true,
-                "message" => "Riwayat peminjaman berhasil diambil!",
+                'status_code' => 200,
+                'success' => true,
+                'message' => 'Riwayat peminjaman berhasil diambil!',
                 'pagination' => [
-                    "total" => $this->total(),
-                    "per_page" => (int)$this->perPage(),
-                    "current_page" => $this->currentPage(),
-                    "last_page" => $this->lastPage(),
+                    'total' => $this->total(),
+                    'count' => $this->count(),
+                    'per_page' => (int)$this->perPage(),
+                    'current_page' => $this->currentPage(),
+                    'total_pages' => $this->lastPage(),
+                    'from' => $this->firstItem(),
+                    'to' => $this->lastItem(),
                 ]
             ]
         ];
     }
 }
-

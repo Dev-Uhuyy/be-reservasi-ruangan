@@ -47,7 +47,7 @@ class ReservationApprovedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'email.reservation-approved',
+            view: 'emails.reservations.approved',
             with: [
                 'reservation' => $this->reservation
             ],

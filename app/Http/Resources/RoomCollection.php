@@ -20,15 +20,17 @@ class RoomCollection extends ResourceCollection
                 ];
             }),
             'meta' => [
-                'total' => $this->total(), // Changed from $this->collection->total()
-                'per_page' => $this->perPage(), // Changed from $this->collection->perPage()
-                'current_page' => $this->currentPage(), // Changed from $this->collection->currentPage()
-                'last_page' => $this->lastPage(), // Changed from $this->collection->lastPage()
-                'from' => $this->firstItem(), // Changed from $this->collection->firstItem()
-                'to' => $this->lastItem(), // Changed from $this->collection->lastItem()
-                'status_code' => 201,
+                'status_code' => 200, 
                 'success' => true,
-                'message' => 'Data Room berhasil!'
+                'message' => 'Data ruangan berhasil diambil!',
+                'pagination' => [
+                    'total' => $this->total(),
+                    'per_page' => $this->perPage(),
+                    'current_page' => $this->currentPage(),
+                    'last_page' => $this->lastPage(),
+                    'from' => $this->firstItem(),
+                    'to' => $this->lastItem(),
+                ]
             ]
         ];
     }

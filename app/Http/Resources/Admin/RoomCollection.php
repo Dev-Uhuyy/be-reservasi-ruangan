@@ -2,45 +2,37 @@
 
 namespace App\Http\Resources\Admin;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class RoomCollection extends ResourceCollection
 {
-    /**
-     * Transform the resource collection into an array.
-     *
-     * @return array<int|string, mixed>
-     */
-    public function toArray(Request $request): array
+    public function toArray($request)
     {
         return [
-            'data' => RoomResource::collection($this->collection),
+            'data' => $this->collection->map(function ($room) {
+                return [
+                    'id' => $room->id,
+                    'name' => $room->room_name,
+                    'floor' => $room->floor,
+                    'capacity' => $room->capacity,
+                    'facilities' => $room->facilities,
+                    'status' => $room->status,
+                ];
+            }),
             'meta' => [
-                "success" => true,
-                "message" => "Data ruangan berhasil diambil!",
-                'pagination' => $this->paginationData()
+                'status_code' => 200,
+                'success' => true,
+                'message' => 'Data ruangan berhasil diambil!',
+                'pagination' => [
+                    'total' => $this->total(),
+                    'count' => $this->count(),
+                    'per_page' => (int)$this->perPage(),
+                    'current_page' => $this->currentPage(),
+                    'total_pages' => $this->lastPage(),
+                    'from' => $this->firstItem(),
+                    'to' => $this->lastItem(),
+                ]
             ]
-        ];
-    }
-
-    /**
-     * Membuat data paginasi kustom.
-     *
-     * @return array
-     */
-    private function paginationData(): array
-    {
-        return [
-            "total" => $this->total(),
-            "count" => $this->count(),
-            "per_page" => (int)$this->perPage(),
-            "current_page" => $this->currentPage(),
-            "total_pages" => $this->lastPage(),
-            "links" => [
-                'previous' => $this->previousPageUrl(),
-                "next" => $this->nextPageUrl(),
-            ],
         ];
     }
 }

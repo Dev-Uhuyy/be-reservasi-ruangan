@@ -8,7 +8,7 @@ use App\Http\Resources\RoomCollection;
 use App\Http\Resources\RoomResource;
 use App\Models\Room;
 use Illuminate\Http\Request;
-use PhpParser\Node\Stmt\TryCatch;
+use Illuminate\Http\JsonResponse;
 
 class RoomController extends Controller
 {
@@ -19,25 +19,35 @@ class RoomController extends Controller
         $this->roomService = $roomService;
     }
 
+    /**
+     * Menampilkan daftar ruangan yang tersedia untuk student
+     */
     public function index(Request $request)
     {
         $filters = $request->only(['search', 'floor', 'date', 'start_time', 'end_time']);
         $rooms = $this->roomService->getAvailableRoomsForStudent($filters);
 
+        // Menggunakan RoomCollection yang sudah ditangani di base Controller
         return new RoomCollection($rooms);
     }
 
-    public function show(Request $request, Room $room)
+    /**
+     * Menampilkan detail ruangan beserta jadwalnya
+     */
+    public function show(Request $request, Room $room): JsonResponse
     {
         try {
             $filters = $request->only(['date', 'status']);
             $schedules = $this->roomService->getSchedulesForRoomStudent($room, $filters);
-            return new RoomResource($room->setAttribute('schedules', $schedules));
+            
+            $room->setAttribute('schedules', $schedules);
+            
+            return $this->successResponse(
+                new RoomResource($room),
+                'Detail ruangan berhasil diambil!'
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred while fetching room details.',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->exceptionError($e, 'Gagal mengambil detail ruangan', 500);
         }
     }
 }

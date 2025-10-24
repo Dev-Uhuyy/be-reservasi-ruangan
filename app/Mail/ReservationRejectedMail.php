@@ -43,7 +43,7 @@ class ReservationRejectedMail extends Mailable
             markdown: 'emails.reservations.rejected',
             with: [
                 'studentName' => $this->reservation->student->name,
-                'rejectReason' => $this->reservation->rejection_reason, // <-- Kirim alasan ke view
+                'rejectReason' => $this->reservation->rejection_reason, 
             ],
         );
     }

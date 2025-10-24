@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\Staff\History;
+namespace App\Http\Resources\Staff;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;

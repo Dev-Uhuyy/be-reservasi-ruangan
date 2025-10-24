@@ -12,9 +12,7 @@ use Illuminate\Http\JsonResponse;
 
 class VerificationController extends Controller
 {
-    public function __construct(protected VerificationService $verificationService)
-    {
-    }
+    public function __construct(protected VerificationService $verificationService) {}
 
     public function index(Request $request): VerificationCollection
     {
@@ -36,13 +34,9 @@ class VerificationController extends Controller
 
         $updatedBooking = $this->verificationService->updateUsageStatus($bookingHistory, $validated['usage_status']);
 
-        return response()->json([
-            'data' => new VerificationResource($updatedBooking->load(['room', 'student', 'verifier'])),
-            'meta' => [
-                'success' => true,
-                'message' => 'Status penggunaan ruangan berhasil diverifikasi!'
-            ]
-        ]);
+        return $this->successResponse(
+            new VerificationResource($updatedBooking->load(['room', 'student', 'verifier'])),
+            'Status penggunaan ruangan berhasil diverifikasi!'
+        );
     }
 }
-

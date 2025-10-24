@@ -9,13 +9,11 @@ use Illuminate\Http\Request;
 
 class HistoryController extends Controller
 {
-    public function __construct(protected VerificationService $verificationService)
-    {
-    }
+    public function __construct(protected VerificationService $verificationService) {}
 
     public function index(Request $request)
     {
         $histories = $this->verificationService->getVerificationHistoryForStaff($request);
-        return response()->json($histories);
+        return $this->successResponse($histories, 'Riwayat verifikasi berhasil diambil!');
     }
 }
