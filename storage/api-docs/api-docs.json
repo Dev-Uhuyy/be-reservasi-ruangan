@@ -1,37 +1,31 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "API Reservasi Ruangan Gedung H",
-        "description": "Sistem Reservasi Ruangan Gedung H dengan 3 role: Admin, Staff, dan Student. Menggunakan JWT Authentication.",
+        "title": "API Reservasi Ruangan DinuSpace",
+        "description": "Dokumentasi API untuk sistem reservasi ruangan Gedung H.",
         "contact": {
-            "name": "Tim Support",
-            "email": "support@reservasi.com"
-        },
-        "license": {
-            "name": "MIT",
-            "url": "https://opensource.org/licenses/MIT"
+            "name": "Tim Developer",
+            "email": "support@dinus.ac.id"
         },
         "version": "1.0.0"
     },
     "servers": [
         {
-            "url": "http://localhost:8000",
-            "description": "Local Development Server"
-        },
-        {
-            "url": "https://api.reservasi.com",
-            "description": "Production Server"
+            "url": "http://127.0.0.1:8000/api",
+            "description": "Localhost API Server"
         }
     ],
     "paths": {
         "/register": {
             "post": {
                 "tags": [
-                    "Authentication"
+                    "Auth"
                 ],
                 "summary": "Registrasi mahasiswa baru",
+                "description": "Endpoint untuk registrasi mahasiswa baru ke dalam sistem.",
                 "operationId": "e66f8a7452e13b03ae4e77dbb42e435c",
                 "requestBody": {
+                    "description": "Data registrasi mahasiswa",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -39,32 +33,30 @@
                                 "required": [
                                     "name",
                                     "email",
-                                    "nim",
-                                    "program",
                                     "password"
                                 ],
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Budi"
+                                        "example": "Sindu"
                                     },
                                     "email": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "budi@student.ac.id"
-                                    },
-                                    "nim": {
-                                        "type": "string",
-                                        "example": "A123456"
-                                    },
-                                    "program": {
-                                        "type": "string",
-                                        "example": "Teknik Informatika"
+                                        "example": "sindu@student.dinus.ac.id"
                                     },
                                     "password": {
                                         "type": "string",
                                         "format": "password",
                                         "example": "password123"
+                                    },
+                                    "nim": {
+                                        "type": "string",
+                                        "example": "1234567890"
+                                    },
+                                    "program": {
+                                        "type": "string",
+                                        "example": "Teknik Informatika"
                                     }
                                 },
                                 "type": "object"
@@ -74,29 +66,41 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Registrasi berhasil",
+                        "description": "Registrasi berhasil.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/UserResource"
-                                        },
-                                        "meta": {
-                                            "$ref": "#/components/schemas/MetaSuccess"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/SuccessResponse"
                                 }
                             }
                         }
                     },
                     "422": {
-                        "description": "Validasi gagal",
+                        "description": "Validasi gagal.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/MetaError"
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Permintaan tidak valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -107,11 +111,13 @@
         "/login": {
             "post": {
                 "tags": [
-                    "Authentication"
+                    "Auth"
                 ],
-                "summary": "Login pengguna",
+                "summary": "Login pengguna (mahasiswa, staff, atau admin)",
+                "description": "Endpoint untuk autentikasi pengguna dan mendapatkan token JWT.",
                 "operationId": "d618a255475240ba3d40cc39692cd924",
                 "requestBody": {
+                    "description": "Kredensial login pengguna",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -124,7 +130,7 @@
                                     "email": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "budi@student.ac.id"
+                                        "example": "sindu@student.dinus.ac.id"
                                     },
                                     "password": {
                                         "type": "string",
@@ -139,45 +145,31 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Login berhasil",
+                        "description": "Login berhasil.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "properties": {
-                                                "user": {
-                                                    "$ref": "#/components/schemas/UserResource"
-                                                },
-                                                "token": {
-                                                    "type": "string"
-                                                },
-                                                "token_type": {
-                                                    "type": "string",
-                                                    "example": "bearer"
-                                                },
-                                                "expires_in": {
-                                                    "type": "integer",
-                                                    "example": 3600
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "meta": {
-                                            "$ref": "#/components/schemas/MetaSuccess"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/SuccessResponse"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "Kredensial tidak valid",
+                        "description": "Email atau password salah.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/MetaError"
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -185,28 +177,21 @@
                 }
             }
         },
-        "/auth/profile": {
+        "/auth/me": {
             "get": {
                 "tags": [
-                    "Authentication"
+                    "Auth"
                 ],
-                "summary": "Ambil data profil pengguna yang sedang login",
-                "operationId": "fbc33ac6296afc79593f63a82776f198",
+                "summary": "Get profil pengguna saat ini",
+                "description": "Endpoint untuk mendapatkan data profil pengguna yang sedang login.",
+                "operationId": "1b159aad6eeb13c36e8dd7e01033f59a",
                 "responses": {
                     "200": {
-                        "description": "Profil berhasil diambil",
+                        "description": "Data profil berhasil diambil.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/UserResource"
-                                        },
-                                        "meta": {
-                                            "$ref": "#/components/schemas/MetaSuccess"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/SuccessResponse"
                                 }
                             }
                         }
@@ -216,7 +201,17 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/MetaError"
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -227,16 +222,16 @@
                         "bearerAuth": []
                     }
                 ]
-            }
-        },
-        "/auth/update-profile": {
+            },
             "put": {
                 "tags": [
-                    "Authentication"
+                    "Auth"
                 ],
-                "summary": "Update data profil pengguna",
-                "operationId": "04298d09d9ab8aef11a6f839c8059c0f",
+                "summary": "Perbarui profil pengguna saat ini",
+                "description": "Endpoint untuk memperbarui data profil pengguna yang sedang login.",
+                "operationId": "16db79bfd7e5c26c00eb876f35f66976",
                 "requestBody": {
+                    "description": "Data profil yang akan diperbarui",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -244,7 +239,12 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Budi"
+                                        "example": "Sindu Updated"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "sindu.updated@example.com"
                                     },
                                     "program": {
                                         "type": "string",
@@ -258,29 +258,31 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Profil berhasil diperbarui",
+                        "description": "Profil berhasil diperbarui.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/UserResource"
-                                        },
-                                        "meta": {
-                                            "$ref": "#/components/schemas/MetaSuccess"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/SuccessResponse"
                                 }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Validasi gagal",
+                    "400": {
+                        "description": "Permintaan tidak valid.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/MetaError"
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -293,20 +295,26 @@
                 ]
             }
         },
-        "/auth/update-avatar": {
+        "/auth/me/avatar": {
             "post": {
                 "tags": [
-                    "Authentication"
+                    "Auth"
                 ],
-                "summary": "Update foto profil (avatar)",
-                "operationId": "72689e3beeab57c63f7dfb71e2131ee6",
+                "summary": "Perbarui avatar pengguna saat ini",
+                "description": "Endpoint untuk memperbarui foto profil (avatar) pengguna yang sedang login.",
+                "operationId": "77fb9c079ef854cfa70aa93801180e25",
                 "requestBody": {
+                    "description": "File gambar avatar baru",
                     "required": true,
                     "content": {
                         "multipart/form-data": {
                             "schema": {
+                                "required": [
+                                    "profile_picture"
+                                ],
                                 "properties": {
                                     "profile_picture": {
+                                        "description": "File gambar avatar",
                                         "type": "string",
                                         "format": "binary"
                                     }
@@ -318,29 +326,31 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Avatar berhasil diperbarui",
+                        "description": "Avatar berhasil diperbarui.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/UserResource"
-                                        },
-                                        "meta": {
-                                            "$ref": "#/components/schemas/MetaSuccess"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/SuccessResponse"
                                 }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Validasi gagal",
+                    "400": {
+                        "description": "Permintaan tidak valid.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/MetaError"
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -356,26 +366,34 @@
         "/auth/reset-password": {
             "put": {
                 "tags": [
-                    "Authentication"
+                    "Auth"
                 ],
-                "summary": "Ubah password pengguna",
+                "summary": "Ubah password pengguna saat ini",
+                "description": "Endpoint untuk mengubah password pengguna yang sedang login.",
                 "operationId": "e1d3a417ae489ec87217a82f7ee529c3",
                 "requestBody": {
+                    "description": "Data untuk mengubah password",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
                                     "password",
-                                    "new_password"
+                                    "new_password",
+                                    "new_password_confirmation"
                                 ],
                                 "properties": {
                                     "password": {
                                         "type": "string",
                                         "format": "password",
-                                        "example": "oldpassword"
+                                        "example": "oldpassword123"
                                     },
                                     "new_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newpassword123"
+                                    },
+                                    "new_password_confirmation": {
                                         "type": "string",
                                         "format": "password",
                                         "example": "newpassword123"
@@ -388,29 +406,41 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Password berhasil diubah",
+                        "description": "Password berhasil diubah.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "null"
-                                        },
-                                        "meta": {
-                                            "$ref": "#/components/schemas/MetaSuccess"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/SuccessResponse"
                                 }
                             }
                         }
                     },
                     "422": {
-                        "description": "Password salah atau validasi gagal",
+                        "description": "Validasi gagal.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/MetaError"
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Permintaan tidak valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -426,25 +456,28 @@
         "/auth/logout": {
             "post": {
                 "tags": [
-                    "Authentication"
+                    "Auth"
                 ],
-                "summary": "Logout pengguna",
+                "summary": "Logout pengguna saat ini",
+                "description": "Endpoint untuk logout pengguna yang sedang login.",
                 "operationId": "eae6a8251a6469bbabe454860f64cf37",
                 "responses": {
                     "200": {
-                        "description": "Logout berhasil",
+                        "description": "Logout berhasil.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "null"
-                                        },
-                                        "meta": {
-                                            "$ref": "#/components/schemas/MetaSuccess"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -460,206 +493,91 @@
         "/auth/refresh-token": {
             "post": {
                 "tags": [
-                    "Authentication"
+                    "Auth"
                 ],
-                "summary": "Refresh JWT token",
+                "summary": "Refresh token JWT",
+                "description": "Endpoint untuk memperbarui token JWT yang sudah kedaluwarsa.",
                 "operationId": "98118740b61ebdc60cab073f2ca279e7",
                 "responses": {
                     "200": {
-                        "description": "Token berhasil diperbarui",
+                        "description": "Token berhasil diperbarui.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "properties": {
-                                                "token": {
-                                                    "type": "string"
-                                                },
-                                                "token_type": {
-                                                    "type": "string",
-                                                    "example": "bearer"
-                                                },
-                                                "expires_in": {
-                                                    "type": "integer",
-                                                    "example": 3600
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "meta": {
-                                            "$ref": "#/components/schemas/MetaSuccess"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token tidak valid atau kedaluwarsa.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
+                }
             }
         }
     },
     "components": {
         "schemas": {
-            "MetaSuccess": {
+            "SuccessResponse": {
+                "title": "Respons sukses standar",
                 "properties": {
-                    "status_code": {
-                        "type": "integer",
-                        "example": 200
+                    "data": {
+                        "description": "Data hasil request",
+                        "type": "object"
                     },
-                    "success": {
-                        "type": "boolean",
-                        "example": true
-                    },
-                    "message": {
-                        "type": "string",
-                        "example": "Operasi berhasil"
-                    }
-                },
-                "type": "object"
-            },
-            "MetaError": {
-                "properties": {
-                    "status_code": {
-                        "type": "integer",
-                        "example": 400
-                    },
-                    "success": {
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "message": {
-                        "type": "string",
-                        "example": "Terjadi kesalahan"
-                    },
-                    "errors": {
-                        "type": "string",
-                        "example": "Exception Error: ..."
-                    }
-                },
-                "type": "object"
-            },
-            "Pagination": {
-                "properties": {
-                    "total": {
-                        "type": "integer",
-                        "example": 50
-                    },
-                    "count": {
-                        "type": "integer",
-                        "example": 15
-                    },
-                    "per_page": {
-                        "type": "integer",
-                        "example": 15
-                    },
-                    "current_page": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "total_pages": {
-                        "type": "integer",
-                        "example": 4
-                    },
-                    "from": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "to": {
-                        "type": "integer",
-                        "example": 15
-                    }
-                },
-                "type": "object"
-            },
-            "PaginationLinks": {
-                "properties": {
-                    "first": {
-                        "type": "string",
-                        "example": "http://localhost:8000/api/admin/users?page=1"
-                    },
-                    "last": {
-                        "type": "string",
-                        "example": "http://localhost:8000/api/admin/users?page=4"
-                    },
-                    "prev": {
-                        "type": "string",
-                        "example": null,
-                        "nullable": true
-                    },
-                    "next": {
-                        "type": "string",
-                        "example": "http://localhost:8000/api/admin/users?page=2"
-                    }
-                },
-                "type": "object"
-            },
-            "UserResource": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Budi"
-                    },
-                    "email": {
-                        "type": "string",
-                        "example": "budi@student.ac.id"
-                    },
-                    "nim": {
-                        "type": "string",
-                        "example": "A123456"
-                    },
-                    "nip": {
-                        "type": "string",
-                        "example": "1987654321"
-                    },
-                    "floor": {
-                        "type": "string",
-                        "example": "Lantai 2"
-                    },
-                    "program": {
-                        "type": "string",
-                        "example": "Teknik Informatika"
-                    },
-                    "profile_picture": {
-                        "type": "string",
-                        "example": "https://storage.example.com/avatars/budi.jpg"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "example": "2025-10-21 03:52:29"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "example": "2025-10-21 03:52:29"
-                    },
-                    "roles": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
+                    "meta": {
+                        "properties": {
+                            "status_code": {
+                                "type": "integer",
+                                "example": 200
+                            },
+                            "success": {
+                                "type": "boolean",
+                                "example": true
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "Berhasil mengambil data."
+                            }
                         },
-                        "example": [
-                            "student"
-                        ]
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "title": "Respons error standar",
+                "properties": {
+                    "data": {
+                        "type": "null"
                     },
-                    "permissions": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
+                    "meta": {
+                        "properties": {
+                            "status_code": {
+                                "type": "integer",
+                                "example": 400
+                            },
+                            "success": {
+                                "type": "boolean",
+                                "example": false
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "Kredensial tidak valid."
+                            },
+                            "errors": {
+                                "type": "string",
+                                "example": "Exception Error : Unauthorized"
+                            }
                         },
-                        "example": [
-                            "view rooms",
-                            "create reservations"
-                        ]
+                        "type": "object"
                     }
                 },
                 "type": "object"
@@ -668,7 +586,6 @@
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
-                "description": "Masukkan JWT token dengan format: Bearer {token}",
                 "bearerFormat": "JWT",
                 "scheme": "bearer"
             }
@@ -676,8 +593,8 @@
     },
     "tags": [
         {
-            "name": "Authentication",
-            "description": "Endpoints untuk autentikasi (Register, Login, Logout, Profile)"
+            "name": "Auth",
+            "description": "Auth"
         }
     ]
 }

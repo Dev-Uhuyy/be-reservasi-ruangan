@@ -7,8 +7,20 @@ namespace App\Http\Controllers;
  * Semua controller lain akan extend dari controller ini.
  * Versi ini disesuaikan dengan format respons yang diinginkan.
  */
-abstract class Controller 
+abstract class Controller
 {
+    public function validationError($errors, $message = 'Validasi gagal.', $status = 422)
+    {
+        return response()->json([
+            'data' => null,
+            'meta' => [
+                'status_code' => $status,
+                'success' => false,
+                'message' => $message,
+                'errors' => $errors
+            ]
+        ], $status);
+    }
     /**
      * Mengembalikan respons error terstandardisasi untuk exceptions.
      *
@@ -65,4 +77,3 @@ abstract class Controller
         return response()->json($data);
     }
 }
-
