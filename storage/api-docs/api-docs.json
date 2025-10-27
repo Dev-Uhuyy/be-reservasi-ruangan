@@ -16,6 +16,454 @@
         }
     ],
     "paths": {
+        "/admin/users": {
+            "get": {
+                "tags": [
+                    "Admin - Manajemen User"
+                ],
+                "summary": "Melihat User yang ada",
+                "description": "Endpoint untuk melihat data user",
+                "operationId": "4ba3720605e28fc63ff53695bdc61b05",
+                "responses": {
+                    "200": {
+                        "description": "Data Berhasil di tampilkan.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan Server.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Admin - Manajemen User"
+                ],
+                "summary": "Menambahkan pengguna baru (staff atau student)",
+                "description": "Endpoint untuk membuat pengguna baru oleh admin.",
+                "operationId": "1d0f726b906003a6edf9b363b1062f3b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@student.dinus.ac.id"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "staff",
+                                            "student"
+                                        ],
+                                        "example": "staff"
+                                    },
+                                    "nip": {
+                                        "description": "Wajib untuk staff",
+                                        "type": "string",
+                                        "example": "STF12345"
+                                    },
+                                    "floor": {
+                                        "description": "Wajib untuk staff",
+                                        "type": "string",
+                                        "example": "Lantai 3"
+                                    },
+                                    "nim": {
+                                        "description": "Wajib untuk student",
+                                        "type": "string",
+                                        "example": "A11202113501"
+                                    },
+                                    "program": {
+                                        "description": "Wajib untuk student",
+                                        "type": "string",
+                                        "example": "Informatika"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pengguna berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server saat membuat pengguna",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/admin/users/{user}": {
+            "get": {
+                "tags": [
+                    "Admin - Manajemen User"
+                ],
+                "summary": "Melihat detail pengguna",
+                "description": "Menampilkan detail satu pengguna berdasarkan ID.",
+                "operationId": "5b75fc76baf7aedceede3ee7653b5ca6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID pengguna",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 7
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail pengguna berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pengguna tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin - Manajemen User"
+                ],
+                "summary": "Memperbarui data pengguna",
+                "description": "Endpoint untuk memperbarui data pengguna (staff atau student) oleh admin.",
+                "operationId": "20f213b9c31c3258de9f0c7704033b16",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID pengguna yang akan diperbarui",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 5
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe Updated"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john.updated@student.dinus.ac.id"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "newpassword123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "newpassword123"
+                                    },
+                                    "nip": {
+                                        "description": "Untuk staff",
+                                        "type": "string",
+                                        "example": "STF67890"
+                                    },
+                                    "floor": {
+                                        "type": "string",
+                                        "example": "Lantai 4"
+                                    },
+                                    "nim": {
+                                        "description": "Untuk student",
+                                        "type": "string",
+                                        "example": "A11202113502"
+                                    },
+                                    "program": {
+                                        "type": "string",
+                                        "example": "Sistem Informasi"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Pengguna berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pengguna tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server saat memperbarui pengguna",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin - Manajemen User"
+                ],
+                "summary": "Menghapus pengguna",
+                "description": "Endpoint untuk menghapus pengguna oleh admin.",
+                "operationId": "58e41fe28947bf50a7a7037e5a0fc990",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID pengguna yang akan dihapus",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pengguna berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pengguna tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server saat menghapus pengguna",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/admin/staff": {
+            "get": {
+                "tags": [
+                    "Admin - Manajemen User"
+                ],
+                "summary": "Melihat daftar semua staff",
+                "description": "Endpoint untuk menampilkan semua pengguna dengan role staff.",
+                "operationId": "a0abbd76ff70c78b74d088153bc72b74",
+                "responses": {
+                    "200": {
+                        "description": "Daftar staff berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server saat mengambil data staff",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/admin/students": {
+            "get": {
+                "tags": [
+                    "Admin - Manajemen User"
+                ],
+                "summary": "Melihat daftar semua mahasiswa",
+                "description": "Endpoint untuk menampilkan semua pengguna dengan role student.",
+                "operationId": "17145592dfe5b24eb4ad9875303831f8",
+                "responses": {
+                    "200": {
+                        "description": "Daftar mahasiswa berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server saat mengambil data mahasiswa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/register": {
             "post": {
                 "tags": [
@@ -521,6 +969,43 @@
                     }
                 }
             }
+        },
+        "/admin/rooms": {
+            "get": {
+                "tags": [
+                    "Admin - Manajemen Ruangan"
+                ],
+                "summary": "Melihat Ruangan",
+                "description": "Endpoint untuk melihat data ruangan",
+                "operationId": "bebf0b76e24db97701e4688b00b7928c",
+                "responses": {
+                    "200": {
+                        "description": "Data Berhasil di tampilkan.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan Server.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -592,6 +1077,14 @@
         }
     },
     "tags": [
+        {
+            "name": "Admin - Manajemen User",
+            "description": "Endpoint untuk mengelola data pengguna (staff & mahasiswa) oleh admin."
+        },
+        {
+            "name": "Admin - Manajemen Ruangan",
+            "description": "Endpoint untuk mengelola data ruangan dan fasilitas kampus."
+        },
         {
             "name": "Auth",
             "description": "Auth"

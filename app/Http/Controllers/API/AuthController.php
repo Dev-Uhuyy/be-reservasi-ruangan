@@ -33,7 +33,7 @@ class AuthController extends Controller
      *    tags={"Auth"},
      *    @OA\RequestBody(
      *      required=true,
-     *      description="Data registrasi mahasiswa",  
+     *      description="Data registrasi mahasiswa",
      *      @OA\JsonContent(
      *          required={"name", "email", "password"},
      *          @OA\Property(property="name", type="string", example="Sindu"),

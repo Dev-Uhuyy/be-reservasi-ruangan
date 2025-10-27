@@ -4,10 +4,25 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends FormRequest
 {
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'data' => null,
+            'meta' => [
+                'status_code' => 400,
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ]
+        ], 422));
+    }
     public function authorize(): bool
     {
         return true;

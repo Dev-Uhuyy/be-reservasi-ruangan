@@ -21,6 +21,26 @@ class RoomsController extends Controller
     /**
      * Menampilkan semua data ruangan.
      */
+     /**
+     *  @OA\Get(
+     *  path="/admin/rooms",
+     *  summary="Melihat Ruangan",
+     *  description="Endpoint untuk melihat data ruangan",
+     *  tags={"Admin - Manajemen Ruangan"},
+     *  security={{"bearerAuth":{}}},
+     *  @OA\Response(
+     *  response=200,
+     *      description="Data Berhasil di tampilkan.",
+     *      @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
+     * ),
+     * @OA\Response(
+     *  response=500,
+     *      description="Kesalahan Server.",
+     *      @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     * ),
+     *
+     * )
+     */
     public function index(Request $request): RoomCollection
     {
         $rooms = $this->roomService->getAllRooms($request);

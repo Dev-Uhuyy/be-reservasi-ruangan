@@ -32,7 +32,7 @@ class UserManagementService
         }
 
         // Mengembalikan hasil dengan paginasi
-        return $query->paginate(2);
+        return $query->paginate(5);
     }
 
     /**
